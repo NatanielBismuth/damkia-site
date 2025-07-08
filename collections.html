@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>קולקציות | Damka Swimwear | בגדי ים מעוצבים | ישראל</title>
+    <meta name="description" content="גלו את קולקציות בגדי הים של דמקה - עיצובים ייחודיים, צבעים מרהיבים וגזרות מחמיאות שנתפרו בעבודת יד עם תשומת לב לכל פרט.">
+    <meta name="keywords" content="בגדי ים, קולקציות בגדי ים, בגדי חוף, עיצוב ישראלי, בגדי ים מעוצבים, דמקה, קיץ 2025, תוצרת כחול-לבן">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="קולקציות | Damka Swimwear | בגדי ים מעוצבים">
+    <meta property="og:description" content="גלו את קולקציות בגדי הים של דמקה - עיצובים ייחודיים, צבעים מרהיבים וגזרות מחמיאות שנתפרו בעבודת יד עם תשומת לב לכל פרט.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="img/og-image.jpg">
+    <meta property="og:url" content="https://damkaswimwear.com/collections.html">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="img/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- AOS - Animate On Scroll Library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.7/swiper-bundle.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/about.css">
+    
+    <style>
+        
+        
+        .collections-header .page-title,
+        .collections-header .breadcrumb,
+        .collections-header .breadcrumb a,
+        .collections-header .breadcrumb .current {
+            color: white;
+        }
+        
+        .collections-header .breadcrumb .separator {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .collection-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+        
+        .collection-tab {
+            padding: 12px 25px;
+            margin: 0 10px 10px;
+            background-color: var(--light-gray);
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .collection-tab:hover {
+            background-color: rgba(76, 175, 80, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .collection-tab.active {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        .collections-container {
+            margin-bottom: 80px;
+        }
+        
+        .collection-content {
+            display: none;
+        }
+        
+        .collection-content.active {
+            display: block;
+        }
+        
+        .collection-hero {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+            margin-bottom: 80px;
+        }
+        
+        .collection-image {
+            position: relative;
+            overflow: hidden;
+            border-radius: var(--border-radius-lg);
+            height: 600px;
+        }
+        
+        .collection-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s ease;
+        }
+        
+        .collection-info {
+            padding: 30px;
+        }
+        
+        .collection-info .collection-tag {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--accent);
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .collection-info .collection-title {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .collection-info .collection-description {
+            margin-bottom: 30px;
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--text-color);
+        }
+        
+        .collection-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .collection-feature {
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--accent);
+            margin-left: 15px;
+            flex-shrink: 0;
+        }
+        
+        .feature-text {
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        
+        .collection-gallery {
+            margin-top: 50px;
+        }
+        
+        .gallery-title {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .gallery-title:after {
+            content: '';
+            width: 80px;
+            height: 3px;
+            background-color: var(--accent);
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+        
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: var(--border-radius-md);
+            height: 400px;
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+        
+        .gallery-item.large {
+            grid-column: auto;
+            grid-row: auto;
+            height: 400px;
+        }
+        
+        .collection-lookbook {
+            margin-top: 80px;
+            position: relative;
+            padding: 100px 0;
+            background-color: var(--light-gray);
+            overflow: hidden;
+        }
+        
+        .lookbook-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('img/pattern.svg') no-repeat;
+            background-size: cover;
+            opacity: 0.05;
+            z-index: 1;
+        }
+        
+        .lookbook-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .lookbook-title {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 50px;
+        }
+        
+        .lookbook-slider {
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .swiper-slide {
+            height: 600px;
+            position: relative;
+        }
+        
+        .slide-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: var(--border-radius-lg);
+        }
+        
+        .collection-video {
+            margin: 100px 0;
+            text-align: center;
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            overflow: hidden;
+            border-radius: var(--border-radius-lg);
+        }
+        
+        .video-thumbnail {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            background-color: #000;
+            overflow: hidden;
+        }
+        
+        .video-thumbnail img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.7;
+            transition: var(--transition);
+        }
+        
+        .video-play {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background-color: rgba(76, 175, 80, 0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            z-index: 10;
+        }
+        
+        .video-play:hover {
+            background-color: var(--accent);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+        
+        .video-thumbnail:hover img {
+            opacity: 0.5;
+            transform: scale(1.05);
+        }
+        
+        .video-text {
+            max-width: 700px;
+            margin: 40px auto 0;
+        }
+        
+        .video-text h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        .video-text p {
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--text-light);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .collection-hero {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .collection-image {
+                height: 400px;
+                order: 1;
+            }
+            
+            .collection-info {
+                order: 2;
+                padding: 0;
+            }
+            
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .gallery-item.large {
+                grid-column: auto;
+                grid-row: auto;
+                height: 350px;
+            }
+            
+            .swiper-slide {
+                height: 450px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .collection-tabs {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                justify-content: flex-start;
+                padding-bottom: 15px;
+                margin-bottom: 30px;
+            }
+            
+            .collection-tab {
+                flex: 0 0 auto;
+                white-space: nowrap;
+            }
+            
+            .collection-features {
+                grid-template-columns: 1fr;
+            }
+            
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .gallery-item {
+                height: 350px;
+            }
+            
+            .swiper-slide {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div class="preloader">
+        <div class="loader">
+            <div class="logo-loader">
+                <span>DAMKA</span>
+                <span class="subtitle">SWIMWEAR</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-inner">
+                <div class="logo">
+                    <a href="index.html" class="logo-text">
+                        <span class="logo-main">DAMKA</span>
+                        <span class="logo-sub">SWIMWEAR</span>
+                    </a>
+                </div>
+                
+                <button class="mobile-toggle" aria-label="תפריט">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                
+                <nav class="nav">
+                    <ul class="nav-list">
+                        <li class="nav-item"><a href="index.html" class="nav-link">דף הבית</a></li>
+                        <li class="nav-item"><a href="shop.html" class="nav-link">חנות</a></li>
+                        <li class="nav-item"><a href="collections.html" class="nav-link active">קולקציות</a></li>
+                        <li class="nav-item"><a href="about.html" class="nav-link">אודות</a></li>
+                        <li class="nav-item"><a href="contact.html" class="nav-link">צור קשר</a></li>
+                    </ul>
+                    
+                    <div class="nav-icons">
+                        <a href="account.html" class="nav-icon" aria-label="חשבון אישי">
+                            <i class="far fa-user"></i>
+                        </a>
+                        <a href="wishlist.html" class="nav-icon" aria-label="מוצרים שאהבתי">
+                            <i class="far fa-heart"></i>
+                            <span class="icon-badge wishlist-count">0</span>
+                        </a>
+                        <a href="cart.html" class="nav-icon" id="cart-icon" aria-label="סל קניות">
+                            <i class="fas fa-shopping-bag"></i>
+                            <span class="icon-badge cart-count">0</span>
+                        </a>
+                        <button class="nav-icon search-toggle" aria-label="חיפוש">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Search Overlay -->
+    <div class="search-overlay">
+        <div class="container">
+            <div class="search-content">
+                <form class="search-form">
+                    <input type="text" placeholder="חיפוש מוצרים..." class="search-input" aria-label="חיפוש מוצרים">
+                    <button type="submit" class="search-button" aria-label="חפש">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+                <button class="search-close" aria-label="סגור חיפוש">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Collections Header -->
+    <section class="collections-header">
+        <div class="container">
+            <h1 class="page-title" data-aos="fade-up">הקולקציות שלנו</h1>
+            <div class="breadcrumb" data-aos="fade-up" data-aos-delay="100">
+                <a href="index.html">דף הבית</a>
+                <span class="separator">/</span>
+                <span class="current">קולקציות</span>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Collections Navigation -->
+    <section class="collections-section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="section-subtitle">מה חדש</span>
+                <h2 class="section-title">הקולקציות שלנו</h2>
+                <p class="section-description">
+                    גלו את הקולקציות הייחודיות שלנו, כל אחת עם הסיפור והאופי המיוחד שלה. 
+                    מעיצובים קלאסיים ועד לקווים נועזים, כולן נתפרות באהבה בסטודיו שלנו במודיעין.
+                </p>
+            </div>
+            
+            <div class="collection-tabs" data-aos="fade-up">
+                <div class="collection-tab active" data-collection="summer-2025">גברים</div>
+                <div class="collection-tab" data-collection="beach-vibes">בגדי - ים שלמים</div>
+                <div class="collection-tab" data-collection="sunset-dreams">בגדי חוף</div>
+                <div class="collection-tab" data-collection="coastal-elegance">ביקיני</div>
+            </div>
+            
+            <div class="collections-container">
+                <!-- Summer 2025 Collection -->
+                <div class="collection-content active" id="summer-2025">
+                    <div class="collection-hero">
+                        <div class="collection-image" data-aos="fade-left">
+                            <img src="img/collections/summer-2025-main.jpg" alt="קולקציית קיץ 2025">
+                        </div>
+                        <div class="collection-info" data-aos="fade-right">
+                            <span class="collection-tag">החדשה ביותר</span>
+                            <h2 class="collection-title">קולקציית גברים</h2>
+                            <p class="collection-description">
+                                קולקציית הגברים החדשה שלנו היא חגיגה של צבעים עזים, גזרות נועזות ובדים מתקדמים. 
+                                השראה לקולקציה הגיעה מחופי הים התיכון וחיי העיר התוססים, תוך יצירת שילוב מושלם בין אלגנטיות לנוחות.
+                            </p>
+                            <p class="collection-description">
+                                כל פריט בקולקציה תוכנן כדי להעניק לך מראה ייחודי עם תשומת לב מיוחדת לפרטים הקטנים, 
+                                החל מרצועות מעוצבות ועד לגימורים מדויקים שהופכים כל בגד ים למיוחד.
+                            </p>
+                            
+                            <div class="collection-features">
+                                <div class="collection-feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-tint"></i>
+                                    </div>
+                                    <div class="feature-text">
+                                        בדים עמידים במים עם הגנת UV
+                                    </div>
+                                </div>
+                                <div class="collection-feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-gem"></i>
+                                    </div>
+                                    <div class="feature-text">
+                                        עיטורי אבנים ופרטי זהב ייחודיים
+                                    </div>
+                                </div>
+                                <div class="collection-feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-palette"></i>
+                                    </div>
+                                    <div class="feature-text">
+                                        פלטת צבעים טרופית מרהיבה
+                                    </div>
+                                </div>
+                                <div class="collection-feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-female"></i>
+                                    </div>
+                                    <div class="feature-text">
+                                        מגוון רחב של מידות וגזרות
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <a href="shop.html?collection=summer-2025" class="cta-button">לצפייה במוצרים</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Collection Gallery -->
+                    <div class="collection-gallery">
+                        <h3 class="gallery-title" data-aos="fade-up">מבט מקרוב</h3>
+                        <div class="gallery-grid">
+                            <div class="gallery-item large" data-aos="fade-up">
+                                <img src="img/collections/summer-2025-1.jpg" alt="קולקציית קיץ 2025">
+                            </div>
+                            <div class="gallery-item" data-aos="fade-up" data-aos-delay="100">
+                                <img src="img/collections/summer-2025-2.jpg" alt="קולקציית קיץ 2025">
+                            </div>
+                            <div class="gallery-item" data-aos="fade-up" data-aos-delay="200">
+                                <img src="img/collections/summer-2025-3.jpg" alt="קולקציית קיץ 2025">
+                            </div>
+                            <div class="gallery-item" data-aos="fade-up" data-aos-delay="100">
+                                <img src="img/collections/summer-2025-4.jpg" alt="קולקציית קיץ 2025">
+                            </div>
+                            <div class="gallery-item" data-aos="fade-up" data-aos-delay="200">
+                                <img src="img/collections/summer-2025-5.jpg" alt="קולקציית קיץ 2025">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Lookbook Slider -->
+                    <div class="collection-lookbook">
+                        <div class="lookbook-pattern"></div>
+                        <div class="container lookbook-content">
+                            <h3 class="lookbook-title" data-aos="fade-up">הלוק-בוק</h3>
+                            <div class="lookbook-slider" data-aos="fade-up">
+                                <div class="swiper lookbook-swiper">
+                                    <div class="swiper-wrapper">
+                                        <div class="swiper-slide">
+                                            <img src="img/collections/lookbook-1.jpg" alt="לוק-בוק קיץ 2025" class="slide-image">
+                                        </div>
+                                        <div class="swiper-slide">
+                                            <img src="img/collections/lookbook-2.jpg" alt="לוק-בוק קיץ 2025" class="slide-image">
+                                        </div>
+                                        <div class="swiper-slide">
+                                            <img src="img/collections/lookbook-3.jpg" alt="לוק-בוק קיץ 2025" class="slide-image">
+                                        </div>
+                                        <div class="swiper-slide">
+                                            <img src="img/collections/lookbook-4.jpg" alt="לוק-בוק קיץ 2025" class="slide-image">
+                                        </div>
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                    <div class="swiper-button-next"></div>
+                                    <div class="swiper-button-prev"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Collection Video -->
+                    <div class="collection-video">
+                        <div class="container">
+                            <div class="video-container" data-aos="fade-up">
+                                <div class="video-thumbnail">
+                                    <img src="img/collections/video-thumbnail.jpg" alt="סרטון קולקציית קיץ 2025">
+                                    <div class="video-play">
+                                        <i class="fas fa-play"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="video-text" data-aos="fade-up">
+                                <h3>הקולקציה בתנועה</h3>
+                                <p>
+                                    צפו בסרטון המציג את קולקציית הקיץ החדשה שלנו בתנועה, כדי לראות איך כל פריט נראה ומתנהג בחוף, בבריכה ובכל יציאה קיצית. 
+                                    הסרטון צולם בחוף פלמחים והציג את הפריטים הנבחרים מהקולקציה.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Beach Vibes Collection -->
+                <div class="collection-content" id="beach-vibes">
+                    <div class="collection-hero">
+                        <div class="collection-image" data-aos="fade-left">
+                            <img src="img/shlemim.png" alt="קולקציית Beach Vibes">
+                        </div>
+                        <div class="collection-info" data-aos="fade-right">
+                            <span class="collection-tag">פופולרית</span>
+                            <h2 class="collection-title">בגדי - ים שלמים</h2>
+                            <p class="collection-description">
+                                קולקציית בגדי הים השלמים מביאה את האווירה הקלילה והכיפית של יום בחוף. 
+                                הדפסים טרופיים, צבעים עזים וגזרות משוחררות מאפיינים את הקולקציה הזאת, שמיועדת לאלו שאוהבות את החיים.
+                            </p>
+                            <p class="collection-description">
+                                הקולקציה כוללת בגדי ים שלמים, ביקיני במגוון סגנונות, וכיסויי חוף תואמים שיעזרו לך ליצור מראה מושלם מהבוקר ועד הערב.
+                            </p>
+                            
+                            <div class="collection-features">
+                                <div class="collection-feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-sun"></i>
+                                    </div>
+                                    <div class="feature-text">
+                                        הדפסים טרופיים מלאי חיים
+                                    </div>
+                                </div>
+                                <div class="collection-feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-tshirt"></i>
+                                    </div>
+                                    <div class="feature-text">
+                                        בדים גמישים במיוחד לנוחות מרבית
+                                    </div>
+                                </div>
+                                <div class="collection-feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-wind"></i>
+                                    </div>
+                                    <div class="feature-text">
+                                        בדים קלילים שמתייבשים במהירות
+                                    </div>
+                                </div>
+                                <div class="collection-feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </div>
+                                    <div class="feature-text">
+                                        פריטים ורסטיליים לשילובים שונים
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <a href="shop.html?collection=beach-vibes" class="cta-button">לצפייה במוצרים</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Collection Gallery -->
+                    <div class="collection-gallery">
+                        <h3 class="gallery-title" data-aos="fade-up">מבט מקרוב</h3>
+                        <div class="gallery-grid">
+                            <div class="gallery-item" data-aos="fade-up">
+                                <img src="img/shalem.jpg" alt="קולקציית Beach Vibes">
+                            </div>
+                            <div class="gallery-item large" data-aos="fade-up" data-aos-delay="100">
+                                <img src="img/main2.png" alt="קולקציית Beach Vibes">
+                            </div>
+                            <div class="gallery-item" data-aos="fade-up" data-aos-delay="200">
+                                <img src="img/hero3.jpg" alt="קולקציית Beach Vibes">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sunset Dreams Collection -->
+                <div class="collection-content" id="sunset-dreams">
+                    <div class="collection-hero">
+                        <div class="collection-image" data-aos="fade-left">
+                            <img src="img/kushi1.jpg" alt="קולקציית Sunset Dreams">
+                        </div>
+                        <div class="collection-info" data-aos="fade-right">
+                            <span class="collection-tag">אלגנטית</span>
+                            <h2 class="collection-title">בגדי חוף</h2>
+                            <p class="collection-description">
+                                קולקציית Sunset Dreams נוצרה בהשראת צבעי השקיעה הרכים והקסומים. 
+                                שילוב של גווני ורוד, כתום, וזהב יוצרים קולקציה רומנטית ונשית במיוחד.
+                            </p>
+                            <p class="collection-description">
+                                הקולקציה כוללת דגמים אלגנטיים עם תשומת לב לפרטים הקטנים - 
+                                קישוטים עדינים, בדים מנצנצים, וגזרות מחמיאות שמעצימות את הנשיות שלך.
+                            </p>
+                            
+                            <div class="collection-features">
+                                <div class="collection-feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <div class="feature-text">
+                                        אלמנטים מנצנצים ומטאליים
+                                    </div>
+                                </div>
+                                <div class="collection-feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-heart"></i>
+                                    </div>
+                                    <div class="feature-text">
+                                        גזרות רומנטיות ומחמיאות
+                                    </div>
+                                </div>
+                                <div class="collection-feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-fire"></i>
+                                    </div>
+                                    <div class="feature-text">
+                                        פלטת צבעי שקיעה מרהיבה
+                                    </div>
+                                </div>
+                                <div class="collection-feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-leaf"></i>
+                                    </div>
+                                    <div class="feature-text">
+                                        פרטי עיטור עדינים מבדים איכותיים
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <a href="shop.html?collection=sunset-dreams" class="cta-button">לצפייה במוצרים</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Collection Gallery -->
+                    <div class="collection-gallery">
+                        <h3 class="gallery-title" data-aos="fade-up">מבט מקרוב</h3>
+                        <div class="gallery-grid">
+                            <div class="gallery-item" data-aos="fade-up">
+                                <img src="img/kushi2.jpg" alt="קולקציית Sunset Dreams">
+                            </div>
+                            <div class="gallery-item" data-aos="fade-up" data-aos-delay="100">
+                                <img src="img/kushi3.jpg" alt="קולקציית Sunset Dreams">
+                            </div>
+                            <div class="gallery-item" data-aos="fade-up" data-aos-delay="200">
+                                <img src="img/1.jpg" alt="קולקציית Sunset Dreams">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Coastal Elegance Collection -->
+                <div class="collection-content" id="coastal-elegance">
+                    <div class="collection-hero">
+                        <div class="collection-image" data-aos="fade-left">
+                            <img src="img/bolbol.jpg" alt="קולקציית Coastal Elegance">
+                        </div>
+                        <div class="collection-info" data-aos="fade-right">
+                            <span class="collection-tag">קלאסית</span>
+                            <h2 class="collection-title">ביקיני</h2>
+                            <p class="collection-description">
+                                קולקציית הביקיני מביאה את האלגנטיות והעידון של חופי הריביירה לבגדי הים שלך. 
+                                קווים נקיים, גזרות קלאסיות וצבעים מעודנים הופכים את הקולקציה הזו לבחירה המושלמת לאישה המתוחכמת.
+                            </p>
+                            <p class="collection-description">
+                                הקולקציה מתאפיינת בבגדי ים בגזרות מחמיאות שעוטפות את הגוף בצורה מדויקת, 
+                                עם פרטים אלגנטיים כמו קיפולים, קשירות מעוצבות וחיתוכים גיאומטריים.
+                            </p>
+                            
+                            <div class="collection-features">
+                                <div class="collection-feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-wave-square"></i>
+                                    </div>
+                                    <div class="feature-text">
+                                        קווים נקיים וגיאומטריים
+                                    </div>
+                                </div>
+                                <div class="collection-feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-draw-polygon"></i>
+                                    </div>
+                                    <div class="feature-text">
+                                        חיתוכים ייחודיים למראה מתוחכם
+                                    </div>
+                                </div>
+                                <div class="collection-feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-tint-slash"></i>
+                                    </div>
+                                    <div class="feature-text">
+                                        פלטת צבעים מעודנת ואלגנטית
+                                    </div>
+                                </div>
+                                <div class="collection-feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-compress-alt"></i>
+                                    </div>
+                                    <div class="feature-text">
+                                        בדים מעצבים עם אפקט חיטוב
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <a href="shop.html?collection=coastal-elegance" class="cta-button">לצפייה במוצרים</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Collection Gallery -->
+                    <div class="collection-gallery">
+                        <h3 class="gallery-title" data-aos="fade-up">מבט מקרוב</h3>
+                        <div class="gallery-grid">
+                            <div class="gallery-item large" data-aos="fade-up">
+                                <img src="https://i.ibb.co/ksXmrXdz/image.png" alt="קולקציית Coastal Elegance">
+                            </div>
+                            <div class="gallery-item" data-aos="fade-up" data-aos-delay="100">
+                                <img src="img/insta1.png" alt="קולקציית Coastal Elegance">
+                            </div>
+                            <div class="gallery-item" data-aos="fade-up" data-aos-delay="200">
+                                <img src="img/bikini.jpg" alt="קולקציית Coastal Elegance">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content" data-aos="fade-up">
+                <h2 class="cta-title">גלי את הקולקציה החדשה שלנו</h2>
+                <p class="cta-text">
+                    התוכנית שלך לקיץ מושלם מתחילה עם בגד הים המושלם. 
+                    הקולקציה החדשה ממתינה לך עם עיצובים ייחודיים, צבעים מרהיבים ואיכות בלתי מתפשרת.
+                </p>
+                <div class="cta-buttons">
+                    <a href="shop.html" class="cta-button">לחנות</a>
+                    <a href="contact.html" class="cta-button cta-button-outline">צרי קשר</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Newsletter -->
+    <section class="newsletter">
+        <div class="container">
+            <div class="newsletter-content" data-aos="fade-up">
+                <h3 class="newsletter-title">הישארו מעודכנים</h3>
+                <p class="newsletter-description">הצטרפו לרשימת התפוצה שלנו כדי לקבל עדכונים על קולקציות חדשות, מבצעים מיוחדים, והטבות בלעדיות!</p>
+                <form class="newsletter-form" id="newsletter-form">
+                    <input type="email" class="newsletter-input" placeholder="כתובת המייל שלך" required aria-label="אימייל להרשמה">
+                    <button type="submit" class="newsletter-submit">הרשמה</button>
+                </form>
+                <div class="newsletter-confirmation" id="newsletter-confirmation">
+                    <i class="fas fa-check-circle"></i>
+                    <p>תודה שנרשמת! נשלח לך עדכונים בקרוב.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <div class="footer-logo">
+                        <div class="logo-text">
+                            <span class="logo-main">DAMKA</span>
+                            <span class="logo-sub">SWIMWEAR</span>
+                        </div>
+                    </div>
+                    <p class="footer-description">
+                        דמקה – לא סתם בגד ים, אלא חוויה שלמה של סטייל, איכות, ואהבה לפרטים הקטנים.
+                    </p>
+                    <div class="footer-social">
+                        <a href="https://facebook.com/damkaswimwear" target="_blank" class="footer-social-link" aria-label="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://instagram.com/damka.swimwear" target="_blank" class="footer-social-link" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://tiktok.com/@damkaswimwear" target="_blank" class="footer-social-link" aria-label="TikTok">
+                            <i class="fab fa-tiktok"></i>
+                        </a>
+                        <a href="https://pinterest.com/damkaswimwear" target="_blank" class="footer-social-link" aria-label="Pinterest">
+                            <i class="fab fa-pinterest-p"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h4 class="footer-title">ניווט מהיר</h4>
+                    <ul class="footer-links">
+                        <li class="footer-link"><a href="index.html">דף הבית</a></li>
+                        <li class="footer-link"><a href="shop.html">חנות</a></li>
+                        <li class="footer-link"><a href="collections.html">קולקציות</a></li>
+                        <li class="footer-link"><a href="about.html">אודות</a></li>
+                        <li class="footer-link"><a href="contact.html">צור קשר</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h4 class="footer-title">מידע חשוב</h4>
+                    <ul class="footer-links">
+                        <li class="footer-link"><a href="shipping.html">משלוחים והחזרות</a></li>
+                        <li class="footer-link"><a href="terms.html">תנאי שימוש</a></li>
+                        <li class="footer-link"><a href="privacy.html">מדיניות פרטיות</a></li>
+                        <li class="footer-link"><a href="faq.html">שאלות נפוצות</a></li>
+                        <li class="footer-link"><a href="size-guide.html">מדריך מידות</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h4 class="footer-title">צור קשר</h4>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt contact-icon"></i>
+                        <div class="contact-text">רחוב תמוז 11, מודיעין</div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone contact-icon"></i>
+                        <div class="contact-text">
+                            ליאת: 050-5572200<br>
+                            איילת: 050-4766801
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope contact-icon"></i>
+                        <div class="contact-text">
+                            ayelethalimi@gmail.com<br>
+                            Liator1980@gmail.com
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bottom-footer">
+            <div class="container">
+                <p>© 2025 דמקה בגדי ים. כל הזכויות שמורות.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar">
+        <div class="cart-sidebar-header">
+            <h3>סל הקניות שלך</h3>
+            <button class="cart-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="cart-items" id="cart-items">
+            <!-- Cart items will be loaded here -->
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span class="total-text">סה"כ:</span>
+                <span class="total-price" id="cart-total">₪0</span>
+            </div>
+            <div class="cart-buttons">
+                <a href="cart.html" class="cart-button">לסל הקניות</a>
+                <a href="checkout.html" class="cart-button primary">לתשלום</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Back to top button -->
+    <button class="back-to-top" aria-label="חזרה לראש הדף">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- Notification Container -->
+    <div class="notification-container"></div>
+
+    <!-- Firebase JS -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    
+    <!-- Other JS Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.7/swiper-bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/main.js"></script>
+    
+    <!-- Page Specific JS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Collection Tabs
+            const collectionTabs = document.querySelectorAll('.collection-tab');
+            const collectionContents = document.querySelectorAll('.collection-content');
+            
+            collectionTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs and contents
+                    collectionTabs.forEach(t => t.classList.remove('active'));
+                    collectionContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to current tab
+                    this.classList.add('active');
+                    
+                    // Show corresponding content
+                    const collectionId = this.dataset.collection;
+                    document.getElementById(collectionId).classList.add('active');
+                    
+                    // Refresh AOS
+                    AOS.refresh();
+                    
+                    // Scroll to top of section
+                    const collectionsSection = document.querySelector('.collections-section');
+                    collectionsSection.scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+            
+            // Initialize Lookbook Slider
+            const lookbookSwiper = new Swiper('.lookbook-swiper', {
+                slidesPerView: 1,
+                spaceBetween: 30,
+                loop: true,
+                autoplay: {
+                    delay: 5000,
+                    disableOnInteraction: false,
+                },
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
+                breakpoints: {
+                    768: {
+                        slidesPerView: 1.5,
+                        centeredSlides: true,
+                    },
+                    992: {
+                        slidesPerView: 2,
+                        centeredSlides: true,
+                    },
+                    1200: {
+                        slidesPerView: 2.5,
+                        centeredSlides: true,
+                    },
+                },
+            });
+            
+            // Video Play Button
+            const videoPlay = document.querySelector('.video-play');
+            const videoThumbnail = document.querySelector('.video-thumbnail');
+            
+            if (videoPlay && videoThumbnail) {
+                videoPlay.addEventListener('click', function() {
+                    // In a real implementation, this would play the video
+                    // For demo purposes, just show a notification
+                    showNotification('הסרטון יטען כאן בגרסה הסופית', 'info');
+                });
+            }
+            
+            // Handle URL parameter for collection tab
+            const urlParams = new URLSearchParams(window.location.search);
+            const collectionParam = urlParams.get('collection');
+            
+            if (collectionParam) {
+                const targetTab = document.querySelector(`.collection-tab[data-collection="${collectionParam}"]`);
+                if (targetTab) {
+                    targetTab.click();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
