@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ניהול אתר | Damka Swimwear</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/admin.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+    <!-- Admin Login Screen -->
+    <div class="login-screen" id="login-screen">
+        <div class="login-container">
+            <div class="login-logo">
+                <div class="logo-text">
+                    <span class="logo-main">DAMKA</span>
+                    <span class="logo-sub">ADMIN</span>
+                </div>
+            </div>
+            
+            <form class="login-form" id="login-form">
+                <h2>התחברות למערכת ניהול</h2>
+                <div class="form-group">
+                    <label for="email">אימייל</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">סיסמה</label>
+                    <input type="password" id="password" required>
+                </div>
+                <div class="form-message" id="login-message"></div>
+                <button type="submit" class="btn btn-primary">התחברות</button>
+                <div class="form-footer">
+                    <a href="#" id="reset-password-link">שכחתי סיסמה</a> |
+                    <a href="#" id="show-signup-link">הרשמה</a>
+                </div>
+            </form>
+            
+            <!-- Signup Form (Hidden by default) -->
+            <form class="login-form" id="signup-form" style="display: none;">
+                <h2>הרשמה למערכת ניהול</h2>
+                <div class="form-group">
+                    <label for="signup-name">שם מלא</label>
+                    <input type="text" id="signup-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">אימייל</label>
+                    <input type="email" id="signup-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">סיסמה</label>
+                    <input type="password" id="signup-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password-confirm">אימות סיסמה</label>
+                    <input type="password" id="signup-password-confirm" required>
+                </div>
+                <div class="form-message" id="signup-message"></div>
+                <button type="submit" class="btn btn-primary">הרשמה</button>
+                <div class="form-footer">
+                    <a href="#" id="back-to-login-from-signup">חזרה להתחברות</a>
+                </div>
+            </form>
+            
+            <!-- Password Reset Form (Hidden by default) -->
+            <form class="login-form" id="reset-form" style="display: none;">
+                <h2>איפוס סיסמה</h2>
+                <div class="form-group">
+                    <label for="reset-email">אימייל</label>
+                    <input type="email" id="reset-email" required>
+                </div>
+                <div class="form-message" id="reset-message"></div>
+                <button type="submit" class="btn btn-primary">שלח הוראות איפוס</button>
+                <div class="form-footer">
+                    <a href="#" id="back-to-login">חזרה להתחברות</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Admin Dashboard (Hidden by default) -->
+    <div class="admin-dashboard" id="admin-dashboard" style="display: none;">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="logo-text">
+                        <span class="logo-main">DAMKA</span>
+                        <span class="logo-sub">ADMIN</span>
+                    </div>
+                </div>
+                <button class="sidebar-toggle" id="sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-user">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-info">
+                    <h4 id="user-name">שם משתמש</h4>
+                    <p id="user-role">מנהל</p>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul class="nav-list">
+                    <li class="nav-item active" data-section="dashboard">
+                        <a href="#dashboard" class="nav-link">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>לוח בקרה</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-section="products">
+                        <a href="#products" class="nav-link">
+                            <i class="fas fa-tshirt"></i>
+                            <span>ניהול מוצרים</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-section="orders">
+                        <a href="#orders" class="nav-link">
+                            <i class="fas fa-shopping-bag"></i>
+                            <span>הזמנות</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-section="messages">
+                        <a href="#messages" class="nav-link">
+                            <i class="fas fa-envelope"></i>
+                            <span>הודעות</span>
+                            <span class="badge" id="unread-messages">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-section="customers">
+                        <a href="#customers" class="nav-link">
+                            <i class="fas fa-users"></i>
+                            <span>לקוחות</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-section="settings">
+                        <a href="#settings" class="nav-link">
+                            <i class="fas fa-cog"></i>
+                            <span>הגדרות</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button id="logout-btn" class="btn btn-outline">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>התנתקות</span>
+                </button>
+                <a href="index.html" class="btn btn-outline" target="_blank">
+                    <i class="fas fa-external-link-alt"></i>
+                    <span>צפייה באתר</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1 id="page-title">לוח בקרה</h1>
+                </div>
+                <div class="top-bar-right">
+                    <div class="search-bar">
+                        <input type="text" placeholder="חיפוש..." id="admin-search">
+                        <button class="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <div class="notifications">
+                        <div class="notification-icon">
+                            <i class="far fa-bell"></i>
+                            <span class="badge" id="notifications-count">0</span>
+                        </div>
+                        <div class="notification-dropdown">
+                            <div class="notification-header">
+                                <h4>התראות</h4>
+                                <a href="#" class="mark-all-read">סמן הכל כנקרא</a>
+                            </div>
+                            <div class="notification-list" id="notification-list">
+                                <!-- Notifications will be loaded here -->
+                                <div class="notification-empty">אין התראות חדשות</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sections Container -->
+            <div class="sections-container">
+                <!-- Dashboard Section -->
+                <section id="dashboard-section" class="admin-section active">
+                    <div class="dashboard-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="stat-details">
+                                <h4>הזמנות חדשות</h4>
+                                <p class="stat-value" id="new-orders-count">0</p>
+                                <p class="stat-change increase"><i class="fas fa-arrow-up"></i> 12% מהחודש הקודם</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-details">
+                                <h4>לקוחות רשומים</h4>
+                                <p class="stat-value" id="customers-count">0</p>
+                                <p class="stat-change increase"><i class="fas fa-arrow-up"></i> 5% מהחודש הקודם</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-shekel-sign"></i>
+                            </div>
+                            <div class="stat-details">
+                                <h4>הכנסות החודש</h4>
+                                <p class="stat-value" id="monthly-revenue">₪0</p>
+                                <p class="stat-change increase"><i class="fas fa-arrow-up"></i> 8% מהחודש הקודם</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-tshirt"></i>
+                            </div>
+                            <div class="stat-details">
+                                <h4>מוצרים פעילים</h4>
+                                <p class="stat-value" id="active-products">0</p>
+                                <p class="stat-change no-change"><i class="fas fa-minus"></i> ללא שינוי</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card recent-orders">
+                            <div class="card-header">
+                                <h3>הזמנות אחרונות</h3>
+                                <a href="#orders" class="view-all">הצג הכל</a>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>מזהה</th>
+                                                <th>לקוח</th>
+                                                <th>תאריך</th>
+                                                <th>סכום</th>
+                                                <th>סטטוס</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="recent-orders-tbody">
+                                            <!-- Recent orders will be loaded here -->
+                                            <tr>
+                                                <td colspan="5" class="text-center">טוען הזמנות...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-card top-products">
+                            <div class="card-header">
+                                <h3>מוצרים מובילים</h3>
+                                <a href="#products" class="view-all">הצג הכל</a>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>מוצר</th>
+                                                <th>קטגוריה</th>
+                                                <th>מחיר</th>
+                                                <th>מכירות</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="top-products-tbody">
+                                            <!-- Top products will be loaded here -->
+                                            <tr>
+                                                <td colspan="4" class="text-center">טוען מוצרים...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-card recent-messages">
+                            <div class="card-header">
+                                <h3>הודעות אחרונות</h3>
+                                <a href="#messages" class="view-all">הצג הכל</a>
+                            </div>
+                            <div class="card-body">
+                                <div id="recent-messages-list">
+                                    <!-- Recent messages will be loaded here -->
+                                    <div class="loading-placeholder">טוען הודעות...</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-card sales-chart">
+                            <div class="card-header">
+                                <h3>סיכום מכירות</h3>
+                                <div class="period-selector">
+                                    <button class="period-btn active" data-period="weekly">שבועי</button>
+                                    <button class="period-btn" data-period="monthly">חודשי</button>
+                                    <button class="period-btn" data-period="yearly">שנתי</button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="sales-chart-canvas"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Products Section -->
+                <section id="products-section" class="admin-section">
+                    <div class="section-header">
+                        <h2>ניהול מוצרים</h2>
+                        <div class="actions">
+                            <button class="btn btn-primary" id="add-product-btn">
+                                <i class="fas fa-plus"></i> הוסף מוצר חדש
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="filters-bar">
+                        <div class="filter-group">
+                            <label for="category-filter">קטגוריה:</label>
+                            <select id="category-filter">
+                                <option value="">הכל</option>
+                                <option value="one-piece">בגדי ים שלמים</option>
+                                <option value="bikini">ביקיני</option>
+                                <option value="beachwear">בגדי חוף</option>
+                                <option value="accessories">אקססוריז</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="status-filter">סטטוס:</label>
+                            <select id="status-filter">
+                                <option value="">הכל</option>
+                                <option value="true">פעיל</option>
+                                <option value="false">לא פעיל</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="stock-filter">מלאי:</label>
+                            <select id="stock-filter">
+                                <option value="">הכל</option>
+                                <option value="true">במלאי</option>
+                                <option value="false">אזל מהמלאי</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group search-group">
+                            <input type="text" id="products-search" placeholder="חיפוש לפי שם, מזהה או תיאור...">
+                            <button id="search-products-btn">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>תמונה</th>
+                                    <th>שם המוצר</th>
+                                    <th>קטגוריה</th>
+                                    <th>מחיר</th>
+                                    <th>מחיר מבצע</th>
+                                    <th>במלאי</th>
+                                    <th>סטטוס</th>
+                                    <th>תאריך יצירה</th>
+                                    <th>פעולות</th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-tbody">
+                                <!-- Products will be loaded here -->
+                                <tr>
+                                    <td colspan="9" class="text-center">טוען מוצרים...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="pagination" id="products-pagination">
+                        <button class="pagination-btn prev-btn" disabled>
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <div class="pagination-info">
+                            עמוד <span class="current-page">1</span> מתוך <span class="total-pages">1</span>
+                        </div>
+                        <button class="pagination-btn next-btn" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                    </div>
+                </section>
+                
+                <!-- Orders Section -->
+                <section id="orders-section" class="admin-section">
+                    <div class="section-header">
+                        <h2>ניהול הזמנות</h2>
+                    </div>
+                    
+                    <div class="filters-bar">
+                        <div class="filter-group">
+                            <label for="order-status-filter">סטטוס:</label>
+                            <select id="order-status-filter">
+                                <option value="">הכל</option>
+                                <option value="pending">ממתין לאישור</option>
+                                <option value="processing">בטיפול</option>
+                                <option value="shipped">נשלח</option>
+                                <option value="delivered">נמסר</option>
+                                <option value="cancelled">בוטל</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group date-group">
+                            <label for="date-from">מתאריך:</label>
+                            <input type="date" id="date-from">
+                        </div>
+                        
+                        <div class="filter-group date-group">
+                            <label for="date-to">עד תאריך:</label>
+                            <input type="date" id="date-to">
+                        </div>
+                        
+                        <div class="filter-group search-group">
+                            <input type="text" id="orders-search" placeholder="חיפוש לפי שם לקוח או מזהה...">
+                            <button id="search-orders-btn">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>מזהה הזמנה</th>
+                                    <th>לקוח</th>
+                                    <th>תאריך</th>
+                                    <th>מוצרים</th>
+                                    <th>סכום</th>
+                                    <th>סטטוס</th>
+                                    <th>שיטת תשלום</th>
+                                    <th>פעולות</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-tbody">
+                                <!-- Orders will be loaded here -->
+                                <tr>
+                                    <td colspan="8" class="text-center">טוען הזמנות...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="pagination" id="orders-pagination">
+                        <button class="pagination-btn prev-btn" disabled>
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <div class="pagination-info">
+                            עמוד <span class="current-page">1</span> מתוך <span class="total-pages">1</span>
+                        </div>
+                        <button class="pagination-btn next-btn" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                    </div>
+                </section>
+                
+                <!-- Messages Section -->
+                <section id="messages-section" class="admin-section">
+                    <div class="section-header">
+                        <h2>הודעות מלקוחות</h2>
+                    </div>
+                    
+                    <div class="filters-bar">
+                        <div class="filter-group">
+                            <label for="message-status-filter">סטטוס:</label>
+                            <select id="message-status-filter">
+                                <option value="">הכל</option>
+                                <option value="new">הודעות חדשות</option>
+                                <option value="read">הודעות שנקראו</option>
+                                <option value="replied">הודעות שנענו</option>
+                                <option value="archived">הודעות בארכיון</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="message-subject-filter">נושא:</label>
+                            <select id="message-subject-filter">
+                                <option value="">הכל</option>
+                                <option value="שאלה על מוצר">שאלה על מוצר</option>
+                                <option value="תיאום פגישה בסטודיו">תיאום פגישה בסטודיו</option>
+                                <option value="בקשה מיוחדת">בקשה מיוחדת</option>
+                                <option value="מידע על משלוחים והחזרות">מידע על משלוחים והחזרות</option>
+                                <option value="אחר">אחר</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group date-group">
+                            <label for="message-date-from">מתאריך:</label>
+                            <input type="date" id="message-date-from">
+                        </div>
+                        
+                        <div class="filter-group search-group">
+                            <input type="text" id="messages-search" placeholder="חיפוש לפי שם או אימייל...">
+                            <button id="search-messages-btn">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="messages-container">
+                        <div class="messages-list" id="messages-list">
+                            <!-- Messages list will be loaded here -->
+                            <div class="loading-placeholder">טוען הודעות...</div>
+                        </div>
+                        
+                        <div class="message-details" id="message-details">
+                            <div class="no-message-selected">
+                                <i class="far fa-envelope"></i>
+                                <p>בחרי הודעה מהרשימה לצפייה בפרטים</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="pagination" id="messages-pagination">
+                        <button class="pagination-btn prev-btn" disabled>
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <div class="pagination-info">
+                            עמוד <span class="current-page">1</span> מתוך <span class="total-pages">1</span>
+                        </div>
+                        <button class="pagination-btn next-btn" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                    </div>
+                </section>
+                
+                <!-- Customers Section -->
+                <section id="customers-section" class="admin-section">
+                    <div class="section-header">
+                        <h2>ניהול לקוחות</h2>
+                    </div>
+                    
+                    <div class="filters-bar">
+                        <div class="filter-group search-group">
+                            <input type="text" id="customers-search" placeholder="חיפוש לפי שם, אימייל או טלפון...">
+                            <button id="search-customers-btn">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>שם</th>
+                                    <th>אימייל</th>
+                                    <th>טלפון</th>
+                                    <th>תאריך הרשמה</th>
+                                    <th>הזמנות</th>
+                                    <th>סך קניות</th>
+                                    <th>פעולות</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customers-tbody">
+                                <!-- Customers will be loaded here -->
+                                <tr>
+                                    <td colspan="7" class="text-center">טוען לקוחות...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="pagination" id="customers-pagination">
+                        <button class="pagination-btn prev-btn" disabled>
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <div class="pagination-info">
+                            עמוד <span class="current-page">1</span> מתוך <span class="total-pages">1</span>
+                        </div>
+                        <button class="pagination-btn next-btn" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                    </div>
+                </section>
+                
+                <!-- Settings Section -->
+                <section id="settings-section" class="admin-section">
+                    <div class="section-header">
+                        <h2>הגדרות מערכת</h2>
+                    </div>
+                    
+                    <div class="settings-tabs">
+                        <div class="tabs-nav">
+                            <button class="tab-btn active" data-tab="general">הגדרות כלליות</button>
+                            <button class="tab-btn" data-tab="shop">הגדרות חנות</button>
+                            <button class="tab-btn" data-tab="shipping">משלוחים ותשלומים</button>
+                            <button class="tab-btn" data-tab="users">משתמשים וגישה</button>
+                        </div>
+                        
+                        <div class="tabs-content">
+                            <!-- General Settings Tab -->
+                            <div class="tab-pane active" id="general-tab">
+                                <form id="general-settings-form" class="settings-form">
+                                    <div class="form-section">
+                                        <h3>פרטי האתר</h3>
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="site-name">שם האתר</label>
+                                                <input type="text" id="site-name" name="site-name" value="Damka Swimwear">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="site-description">תיאור האתר</label>
+                                                <textarea id="site-description" name="site-description" rows="3">דמקה - בגדי ים מעוצבים בעבודת יד מחומרים איכותיים תוצרת כחול-לבן</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="contact-email">אימייל ליצירת קשר</label>
+                                                <input type="email" id="contact-email" name="contact-email" value="info@damkaswimwear.com">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="contact-phone">טלפון ליצירת קשר</label>
+                                                <input type="tel" id="contact-phone" name="contact-phone" value="050-5572200">
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="address">כתובת</label>
+                                                <input type="text" id="address" name="address" value="רחוב תמוז 11, מודיעין">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-section">
+                                        <h3>רשתות חברתיות</h3>
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="facebook-url">קישור לפייסבוק</label>
+                                                <input type="url" id="facebook-url" name="facebook-url" value="https://facebook.com/damkaswimwear">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="instagram-url">קישור לאינסטגרם</label>
+                                                <input type="url" id="instagram-url" name="instagram-url" value="https://instagram.com/damka.swimwear">
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="tiktok-url">קישור לטיקטוק</label>
+                                                <input type="url" id="tiktok-url" name="tiktok-url" value="https://tiktok.com/@damkaswimwear">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="pinterest-url">קישור לפינטרסט</label>
+                                                <input type="url" id="pinterest-url" name="pinterest-url" value="https://pinterest.com/damkaswimwear">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn btn-primary">שמור שינויים</button>
+                                        <button type="reset" class="btn btn-outline">בטל שינויים</button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <!-- Shop Settings Tab -->
+                            <div class="tab-pane" id="shop-tab">
+                                <form id="shop-settings-form" class="settings-form">
+                                    <div class="form-section">
+                                        <h3>הגדרות מוצרים</h3>
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="currency">מטבע</label>
+                                                <select id="currency" name="currency">
+                                                    <option value="ILS" selected>₪ - שקל ישראלי</option>
+                                                    <option value="USD">$ - דולר אמריקאי</option>
+                                                    <option value="EUR">€ - אירו</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="tax-rate">שיעור מע"מ (%)</label>
+                                                <input type="number" id="tax-rate" name="tax-rate" value="17" min="0" max="100">
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group checkbox-group">
+                                                <input type="checkbox" id="show-out-of-stock" name="show-out-of-stock" checked>
+                                                <label for="show-out-of-stock">הצג מוצרים שאזלו מהמלאי</label>
+                                            </div>
+                                            <div class="form-group checkbox-group">
+                                                <input type="checkbox" id="enable-reviews" name="enable-reviews" checked>
+                                                <label for="enable-reviews">אפשר ביקורות מוצרים</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-section">
+                                        <h3>קטגוריות מוצרים</h3>
+                                        <div class="categories-editor">
+                                            <div class="categories-list" id="categories-list">
+                                                <div class="category-item">
+                                                    <div class="category-name">בגדי ים שלמים</div>
+                                                    <div class="category-code">one-piece</div>
+                                                    <div class="category-actions">
+                                                        <button class="btn-icon edit-category"><i class="fas fa-edit"></i></button>
+                                                        <button class="btn-icon delete-category"><i class="fas fa-trash"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="category-item">
+                                                    <div class="category-name">ביקיני</div>
+                                                    <div class="category-code">bikini</div>
+                                                    <div class="category-actions">
+                                                        <button class="btn-icon edit-category"><i class="fas fa-edit"></i></button>
+                                                        <button class="btn-icon delete-category"><i class="fas fa-trash"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="category-item">
+                                                    <div class="category-name">בגדי חוף</div>
+                                                    <div class="category-code">beachwear</div>
+                                                    <div class="category-actions">
+                                                        <button class="btn-icon edit-category"><i class="fas fa-edit"></i></button>
+                                                        <button class="btn-icon delete-category"><i class="fas fa-trash"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="category-item">
+                                                    <div class="category-name">אקססוריז</div>
+                                                    <div class="category-code">accessories</div>
+                                                    <div class="category-actions">
+                                                        <button class="btn-icon edit-category"><i class="fas fa-edit"></i></button>
+                                                        <button class="btn-icon delete-category"><i class="fas fa-trash"></i></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button class="btn btn-outline add-category-btn">
+                                                <i class="fas fa-plus"></i> הוסף קטגוריה
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn btn-primary">שמור שינויים</button>
+                                        <button type="reset" class="btn btn-outline">בטל שינויים</button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <!-- Shipping Settings Tab -->
+                            <div class="tab-pane" id="shipping-tab">
+                                <form id="shipping-settings-form" class="settings-form">
+                                    <div class="form-section">
+                                        <h3>שיטות משלוח</h3>
+                                        <div class="shipping-methods" id="shipping-methods">
+                                            <div class="shipping-method">
+                                                <div class="method-header">
+                                                    <div class="method-name">משלוח סטנדרטי</div>
+                                                    <div class="method-price">₪30</div>
+                                                    <div class="method-actions">
+                                                        <button class="btn-icon edit-shipping"><i class="fas fa-edit"></i></button>
+                                                        <button class="btn-icon delete-shipping"><i class="fas fa-trash"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="method-details">
+                                                    <p>2-5 ימי עסקים</p>
+                                                </div>
+                                            </div>
+                                            <div class="shipping-method">
+                                                <div class="method-header">
+                                                    <div class="method-name">משלוח מהיר</div>
+                                                    <div class="method-price">₪50</div>
+                                                    <div class="method-actions">
+                                                        <button class="btn-icon edit-shipping"><i class="fas fa-edit"></i></button>
+                                                        <button class="btn-icon delete-shipping"><i class="fas fa-trash"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="method-details">
+                                                    <p>1-2 ימי עסקים</p>
+                                                </div>
+                                            </div>
+                                            <div class="shipping-method">
+                                                <div class="method-header">
+                                                    <div class="method-name">איסוף עצמי</div>
+                                                    <div class="method-price">₪0</div>
+                                                    <div class="method-actions">
+                                                        <button class="btn-icon edit-shipping"><i class="fas fa-edit"></i></button>
+                                                        <button class="btn-icon delete-shipping"><i class="fas fa-trash"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="method-details">
+                                                    <p>איסוף מהסטודיו במודיעין - בתיאום מראש</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-outline add-shipping-btn">
+                                            <i class="fas fa-plus"></i> הוסף שיטת משלוח
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="form-section">
+                                        <h3>הגדרות משלוח</h3>
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="free-shipping-threshold">סף למשלוח חינם (₪)</label>
+                                                <input type="number" id="free-shipping-threshold" name="free-shipping-threshold" value="500" min="0">
+                                            </div>
+                                            <div class="form-group checkbox-group">
+                                                <input type="checkbox" id="enable-free-shipping" name="enable-free-shipping" checked>
+                                                <label for="enable-free-shipping">הפעל משלוח חינם מעל סף</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-section">
+                                        <h3>שיטות תשלום</h3>
+                                        <div class="payment-methods">
+                                            <div class="payment-method">
+                                                <input type="checkbox" id="payment-credit-card" name="payment-methods[]" value="credit-card" checked>
+                                                <label for="payment-credit-card">כרטיס אשראי</label>
+                                            </div>
+                                            <div class="payment-method">
+                                                <input type="checkbox" id="payment-paypal" name="payment-methods[]" value="paypal" checked>
+                                                <label for="payment-paypal">PayPal</label>
+                                            </div>
+                                            <div class="payment-method">
+                                                <input type="checkbox" id="payment-bit" name="payment-methods[]" value="bit" checked>
+                                                <label for="payment-bit">ביט</label>
+                                            </div>
+                                            <div class="payment-method">
+                                                <input type="checkbox" id="payment-bank-transfer" name="payment-methods[]" value="bank-transfer">
+                                                <label for="payment-bank-transfer">העברה בנקאית</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn btn-primary">שמור שינויים</button>
+                                        <button type="reset" class="btn btn-outline">בטל שינויים</button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <!-- Users Settings Tab -->
+                            <div class="tab-pane" id="users-tab">
+                                <div class="users-management">
+                                    <div class="section-action-bar">
+                                        <h3>משתמשי מערכת</h3>
+                                        <button class="btn btn-outline add-user-btn">
+                                            <i class="fas fa-plus"></i> הוסף משתמש
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="table-responsive">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>שם</th>
+                                                    <th>אימייל</th>
+                                                    <th>תפקיד</th>
+                                                    <th>סטטוס</th>
+                                                    <th>כניסה אחרונה</th>
+                                                    <th>פעולות</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="users-tbody">
+                                                <tr>
+                                                    <td>איילת חלימי</td>
+                                                    <td>ayelethalimi@gmail.com</td>
+                                                    <td><span class="badge badge-primary">מנהלת</span></td>
+                                                    <td><span class="badge badge-success">פעיל</span></td>
+                                                    <td>10/03/2025 15:42</td>
+                                                    <td>
+                                                        <div class="row-actions">
+                                                            <button class="btn-icon edit-user"><i class="fas fa-edit"></i></button>
+                                                            <button class="btn-icon reset-password"><i class="fas fa-key"></i></button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>ליאת בן נעים</td>
+                                                    <td>Liator1980@gmail.com</td>
+                                                    <td><span class="badge badge-primary">מנהלת</span></td>
+                                                    <td><span class="badge badge-success">פעיל</span></td>
+                                                    <td>12/03/2025 09:15</td>
+                                                    <td>
+                                                        <div class="row-actions">
+                                                            <button class="btn-icon edit-user"><i class="fas fa-edit"></i></button>
+                                                            <button class="btn-icon reset-password"><i class="fas fa-key"></i></button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add/Edit Product Modal -->
+    <div class="modal" id="product-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="product-modal-title">הוספת מוצר חדש</h3>
+                    <button class="modal-close" id="product-modal-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="product-form" class="admin-form">
+                        <div class="form-group">
+                            <label for="product-title">שם המוצר <span class="required">*</span></label>
+                            <input type="text" id="product-title" name="title" required placeholder="הזן את שם המוצר">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="product-category">קטגוריה <span class="required">*</span></label>
+                            <select id="product-category" name="category" required>
+                                <option value="">בחר קטגוריה</option>
+                                <option value="one-piece">בגדי ים שלמים</option>
+                                <option value="bikini">ביקיני</option>
+                                <option value="beachwear">בגדי חוף</option>
+                                <option value="accessories">אקססוריז</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="product-images-urls">תמונת המוצר <span class="required">*</span></label>
+                            <input type="text" id="product-images-urls" name="images" required placeholder="לדוג' img/my-product.jpg">
+                            <small>העלה את התמונה לתיקיית <b>/img/</b> באתר שלך ב-Vercel. הזן כאן את הנתיב (למשל: <code>img/my-product.jpg</code>).</small>
+                            <div id="images-preview" style="margin-top: 10px;"></div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="product-price">מחיר <span class="required">*</span></label>
+                                <div class="price-input-wrapper">
+                                    <input type="number" id="product-price" name="price" required placeholder="0" min="0" step="0.01">
+                                    <span class="currency-symbol">₪</span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="product-sale-price">מחיר מבצע</label>
+                                <div class="price-input-wrapper">
+                                    <input type="number" id="product-sale-price" name="salePrice" placeholder="0" min="0" step="0.01">
+                                    <span class="currency-symbol">₪</span>
+                                </div>
+                                <small>השאר ריק אם אין מבצע</small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="product-stock">מלאי</label>
+                                <select id="product-stock" name="inStock">
+                                    <option value="true">זמין</option>
+                                    <option value="false">לא זמין</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="product-status">סטטוס</label>
+                                <select id="product-status" name="active">
+                                    <option value="true">פעיל</option>
+                                    <option value="false">לא פעיל</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <input type="hidden" id="product-id" name="id">
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">שמור מוצר</button>
+                            <button type="button" class="btn btn-outline" id="cancel-product">ביטול</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- View Order Modal -->
+    <div class="modal" id="order-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>פרטי הזמנה #<span id="order-id-display"></span></h3>
+                    <button class="modal-close" id="order-modal-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body" id="order-details">
+                    <!-- Order details will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirm-modal">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="confirm-title">אישור פעולה</h3>
+                    <button class="modal-close" id="confirm-modal-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="confirm-message">האם את בטוחה שברצונך לבצע פעולה זו?</p>
+                    <div class="form-actions">
+                        <button class="btn btn-danger" id="confirm-yes">כן, אני בטוחה</button>
+                        <button class="btn btn-outline" id="confirm-no">ביטול</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+    
+    <!-- Firebase JS -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

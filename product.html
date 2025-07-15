@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מוצר | Damka Swimwear | בגדי ים מעוצבים | ישראל</title>
+    <meta name="description" content="צפייה במוצר מבית דמקה - בגדי ים מעוצבים בעבודת יד מחומרים איכותיים תוצרת כחול-לבן.">
+    <meta name="keywords" content="בגדי ים, בגדי חוף, עיצוב ישראלי, בגדי ים מעוצבים, דמקה, בגדי ים איכותיים">
+    
+    <!-- Open Graph Meta Tags - Will be dynamically updated for each product -->
+    <meta property="og:title" content="מוצר | Damka Swimwear | בגדי ים מעוצבים">
+    <meta property="og:description" content="צפייה במוצר מבית דמקה - בגדי ים מעוצבים בעבודת יד מחומרים איכותיים תוצרת כחול-לבן.">
+    <meta property="og:type" content="product">
+    <meta property="og:image" content="img/og-image.jpg">
+    <meta property="og:url" content="https://damkaswimwear.com/product.html">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="img/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- AOS - Animate On Scroll Library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/shop.css">
+</head>
+<body>
+    <!-- Preloader -->
+    <div class="preloader">
+        <div class="loader">
+            <div class="logo-loader">
+                <span>DAMKA</span>
+                <span class="subtitle">SWIMWEAR</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-inner">
+                <div class="logo">
+                    <a href="index.html" class="logo-text">
+                        <span class="logo-main">DAMKA</span>
+                        <span class="logo-sub">SWIMWEAR</span>
+                    </a>
+                </div>
+                
+                <button class="mobile-toggle" aria-label="תפריט">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                
+                <nav class="nav">
+                    <ul class="nav-list">
+                        <li class="nav-item"><a href="index.html" class="nav-link">דף הבית</a></li>
+                        <li class="nav-item"><a href="shop.html" class="nav-link">חנות</a></li>
+                        <li class="nav-item"><a href="collections.html" class="nav-link">קולקציות</a></li>
+                        <li class="nav-item"><a href="about.html" class="nav-link">אודות</a></li>
+                        <li class="nav-item"><a href="contact.html" class="nav-link">צור קשר</a></li>
+                    </ul>
+                    
+                    <div class="nav-icons">
+                        <a href="account.html" class="nav-icon" aria-label="חשבון אישי">
+                            <i class="far fa-user"></i>
+                        </a>
+                        <a href="wishlist.html" class="nav-icon" aria-label="מוצרים שאהבתי">
+                            <i class="far fa-heart"></i>
+                            <span class="icon-badge wishlist-count">0</span>
+                        </a>
+                        <a href="cart.html" class="nav-icon" id="cart-icon" aria-label="סל קניות">
+                            <i class="fas fa-shopping-bag"></i>
+                            <span class="icon-badge cart-count">0</span>
+                        </a>
+                        <button class="nav-icon search-toggle" aria-label="חיפוש">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Search Overlay -->
+    <div class="search-overlay">
+        <div class="container">
+            <div class="search-content">
+                <form class="search-form" id="product-search-form">
+                    <input type="text" placeholder="חיפוש מוצרים..." class="search-input" id="product-search" aria-label="חיפוש מוצרים">
+                    <button type="submit" class="search-button" aria-label="חפש">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+                <button class="search-close" aria-label="סגור חיפוש">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Product Section -->
+    <section class="product-section">
+        <div class="container">
+            <div id="product-detail">
+                <!-- Product content will be dynamically loaded here -->
+                <div class="products-loading">
+                    <div class="spinner"></div>
+                    <p>טוען מוצר...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Recently Viewed Products -->
+    <section class="recently-viewed">
+        <div class="container">
+            <h2 class="section-title">מוצרים שצפית בהם לאחרונה</h2>
+            <div class="products-grid" id="recently-viewed-products">
+                <!-- Recently viewed products will be loaded here -->
+            </div>
+        </div>
+    </section>
+    
+    <!-- Newsletter -->
+    <section class="newsletter">
+        <div class="container">
+            <div class="newsletter-content" data-aos="fade-up">
+                <h3 class="newsletter-title">הישארו מעודכנים</h3>
+                <p class="newsletter-description">הצטרפו לרשימת התפוצה שלנו כדי לקבל עדכונים על קולקציות חדשות, מבצעים מיוחדים, והטבות בלעדיות!</p>
+                <form class="newsletter-form" id="newsletter-form">
+                    <input type="email" class="newsletter-input" placeholder="כתובת המייל שלך" required aria-label="אימייל להרשמה">
+                    <button type="submit" class="newsletter-submit">הרשמה</button>
+                </form>
+                <div class="newsletter-confirmation" id="newsletter-confirmation">
+                    <i class="fas fa-check-circle"></i>
+                    <p>תודה שנרשמת! נשלח לך עדכונים בקרוב.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <div class="footer-logo">
+                        <div class="logo-text">
+                            <span class="logo-main">DAMKA</span>
+                            <span class="logo-sub">SWIMWEAR</span>
+                        </div>
+                    </div>
+                    <p class="footer-description">
+                        דמקה – לא סתם בגד ים, אלא חוויה שלמה של סטייל, איכות, ואהבה לפרטים הקטנים.
+                    </p>
+                    <div class="footer-social">
+                        <a href="https://facebook.com/damkaswimwear" target="_blank" class="footer-social-link" aria-label="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://instagram.com/damka.swimwear" target="_blank" class="footer-social-link" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://tiktok.com/@damkaswimwear" target="_blank" class="footer-social-link" aria-label="TikTok">
+                            <i class="fab fa-tiktok"></i>
+                        </a>
+                        <a href="https://pinterest.com/damkaswimwear" target="_blank" class="footer-social-link" aria-label="Pinterest">
+                            <i class="fab fa-pinterest-p"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h4 class="footer-title">ניווט מהיר</h4>
+                    <ul class="footer-links">
+                        <li class="footer-link"><a href="index.html">דף הבית</a></li>
+                        <li class="footer-link"><a href="shop.html">חנות</a></li>
+                        <li class="footer-link"><a href="collections.html">קולקציות</a></li>
+                        <li class="footer-link"><a href="about.html">אודות</a></li>
+                        <li class="footer-link"><a href="contact.html">צור קשר</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h4 class="footer-title">מידע חשוב</h4>
+                    <ul class="footer-links">
+                        <li class="footer-link"><a href="shipping.html">משלוחים והחזרות</a></li>
+                        <li class="footer-link"><a href="terms.html">תנאי שימוש</a></li>
+                        <li class="footer-link"><a href="privacy.html">מדיניות פרטיות</a></li>
+                        <li class="footer-link"><a href="faq.html">שאלות נפוצות</a></li>
+                        <li class="footer-link"><a href="size-guide.html">מדריך מידות</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h4 class="footer-title">צור קשר</h4>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt contact-icon"></i>
+                        <div class="contact-text">רחוב תמוז 11, מודיעין</div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone contact-icon"></i>
+                        <div class="contact-text">
+                            ליאת: 050-5572200<br>
+                            איילת: 050-4766801
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope contact-icon"></i>
+                        <div class="contact-text">
+                            ayelethalimi@gmail.com<br>
+                            Liator1980@gmail.com
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bottom-footer">
+            <div class="container">
+                <p>© 2025 דמקה בגדי ים. כל הזכויות שמורות.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar">
+        <div class="cart-sidebar-header">
+            <h3>סל הקניות שלך</h3>
+            <button class="cart-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="cart-items" id="cart-items">
+            <!-- Cart items will be loaded here -->
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span class="total-text">סה"כ:</span>
+                <span class="total-price" id="cart-total">₪0</span>
+            </div>
+            <div class="cart-buttons">
+                <a href="cart.html" class="cart-button">לסל הקניות</a>
+                <a href="checkout.html" class="cart-button primary">לתשלום</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Back to top button -->
+    <button class="back-to-top" aria-label="חזרה לראש הדף">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- Notification Container -->
+    <div class="notification-container"></div>
+
+    <!-- Firebase JS -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    
+    <!-- Other JS Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/products.js"></script>
+    
+    <!-- Schema.org Product Markup (will be dynamically updated) -->
+    <script type="application/ld+json" id="product-schema">
+    {
+      "@context": "https://schema.org/",
+      "@type": "Product",
+      "name": "בגד ים מבית דמקה",
+      "image": "https://damkaswimwear.com/img/products/default.jpg",
+      "description": "בגד ים איכותי מעוצב בעבודת יד",
+      "brand": {
+        "@type": "Brand",
+        "name": "Damka Swimwear"
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": "https://damkaswimwear.com/product.html",
+        "priceCurrency": "ILS",
+        "price": "349",
+        "availability": "https://schema.org/InStock"
+      }
+    }
+    </script>
+    
+    <!-- Custom Script to Update Product Schema -->
+    <script>
+        // This script will update the product schema based on the loaded product
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            
+            if (productId) {
+                // Load product data and update meta tags and schema
+                getProductDetails(productId)
+                    .then(product => {
+                        if (product) {
+                            updateProductMeta(product);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading product details for meta:', error);
+                    });
+            }
+        });
+        
+        function updateProductMeta(product) {
+            // Update page title
+            document.title = `${product.title} | Damka Swimwear`;
+            
+            // Update meta description
+            const metaDescription = document.querySelector('meta[name="description"]');
+            if (metaDescription) {
+                metaDescription.content = product.description || 'בגד ים מעוצב מבית דמקה - עיצוב ותפירה בעבודת יד, מבדים איכותיים תוצרת ישראל.';
+            }
+            
+            // Update Open Graph meta tags
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            const ogDescription = document.querySelector('meta[property="og:description"]');
+            const ogImage = document.querySelector('meta[property="og:image"]');
+            const ogUrl = document.querySelector('meta[property="og:url"]');
+            
+            if (ogTitle) ogTitle.content = `${product.title} | Damka Swimwear`;
+            if (ogDescription) ogDescription.content = product.description || 'בגד ים מעוצב מבית דמקה - עיצוב ותפירה בעבודת יד, מבדים איכותיים תוצרת ישראל.';
+            if (ogImage && product.images && product.images.length > 0) ogImage.content = product.images[0];
+            if (ogUrl) ogUrl.content = `https://damkaswimwear.com/product.html?id=${product.id}`;
+            
+            // Update product schema
+            const schema = document.getElementById('product-schema');
+            if (schema) {
+                const schemaData = {
+                    "@context": "https://schema.org/",
+                    "@type": "Product",
+                    "name": product.title,
+                    "image": product.images && product.images.length > 0 ? product.images[0] : "https://damkaswimwear.com/img/products/default.jpg",
+                    "description": product.description || 'בגד ים מעוצב מבית דמקה',
+                    "brand": {
+                        "@type": "Brand",
+                        "name": "Damka Swimwear"
+                    },
+                    "offers": {
+                        "@type": "Offer",
+                        "url": `https://damkaswimwear.com/product.html?id=${product.id}`,
+                        "priceCurrency": "ILS",
+                        "price": product.salePrice || product.price,
+                        "availability": product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+                    }
+                };
+                
+                // Add SKU if available
+                if (product.sku) {
+                    schemaData.sku = product.sku;
+                }
+                
+                // Add color and size if available
+                if (product.colors && product.colors.length > 0) {
+                    schemaData.color = product.colors.map(color => color.name).join(', ');
+                }
+                
+                schema.textContent = JSON.stringify(schemaData);
+            }
+            
+            // Save to recently viewed products
+            saveToRecentlyViewed(product);
+        }
+        
+        function saveToRecentlyViewed(product) {
+            const recentlyViewed = JSON.parse(localStorage.getItem('damkaRecentlyViewed') || '[]');
+            
+            // Check if product already exists in recently viewed
+            const existingIndex = recentlyViewed.findIndex(item => item.id === product.id);
+            
+            if (existingIndex !== -1) {
+                // Remove existing entry
+                recentlyViewed.splice(existingIndex, 1);
+            }
+            
+            // Add product to the beginning of the array
+            recentlyViewed.unshift({
+                id: product.id,
+                title: product.title,
+                price: product.salePrice || product.price,
+                image: product.images[0],
+                category: product.category
+            });
+            
+            // Keep only the last 4 items
+            const limitedRecentlyViewed = recentlyViewed.slice(0, 4);
+            
+            // Save to localStorage
+            localStorage.setItem('damkaRecentlyViewed', JSON.stringify(limitedRecentlyViewed));
+            
+            // Update recently viewed section
+            updateRecentlyViewedProducts();
+        }
+        
+        function updateRecentlyViewedProducts() {
+            const recentlyViewedContainer = document.getElementById('recently-viewed-products');
+            
+            if (!recentlyViewedContainer) return;
+            
+            const recentlyViewed = JSON.parse(localStorage.getItem('damkaRecentlyViewed') || '[]');
+            
+            // Only show the section if there are products to display
+            const recentlyViewedSection = document.querySelector('.recently-viewed');
+            
+            if (recentlyViewed.length <= 1) {
+                if (recentlyViewedSection) {
+                    recentlyViewedSection.style.display = 'none';
+                }
+                return;
+            } else {
+                if (recentlyViewedSection) {
+                    recentlyViewedSection.style.display = 'block';
+                }
+            }
+            
+            // Filter out the current product
+            const currentProductId = new URLSearchParams(window.location.search).get('id');
+            const filteredProducts = recentlyViewed.filter(product => product.id !== currentProductId);
+            
+            // Generate HTML for recently viewed products
+            const productsHTML = filteredProducts.map(product => `
+                <div class="product-card" data-id="${product.id}">
+                    <div class="product-image">
+                        <img src="${product.image}" alt="${product.title}">
+                        <div class="product-overlay">
+                            <span class="quick-view">צפייה מהירה</span>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">${product.title}</h3>
+                        <div class="product-price">
+                            <span class="price-current">₪${product.price}</span>
+                        </div>
+                        <div class="product-actions">
+                            <button class="add-to-cart" data-product-id="${product.id}" aria-label="הוסף לסל">
+                                <i class="fas fa-shopping-bag"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            recentlyViewedContainer.innerHTML = productsHTML;
+            
+            // Initialize product card functionality
+            initProductCards();
+        }
+    </script>
+</body>
+</html>
