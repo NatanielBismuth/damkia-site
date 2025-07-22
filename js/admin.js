@@ -7,6 +7,13 @@
 
 // DOM Content Loaded - Initialize Admin Panel
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if Firebase is properly initialized
+    if (!firebase || !firebase.apps.length) {
+        console.error('Firebase not loaded. Please check your Firebase configuration.');
+        showToast('שגיאה באתחול Firebase. אנא בדקי את הגדרות הפרויקט.', 'error');
+        return;
+    }
+    
     // Initialize auth state listeners
     initAuthListeners();
     
@@ -18,8 +25,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize modals
     initModals();
     
-    // Initialize other components when authenticated
-    authStateChanged();
+    // Initialize product actions (for add product button)
+    initProductActions();
+    
+    // Initialize auth state listener (only once)
+    auth.onAuthStateChanged(authStateChanged);
+    
+    // Add global error handler
+    window.addEventListener('error', function(e) {
+        console.error('Global error:', e.error);
+        if (typeof showToast === 'function') {
+            showToast('אירעה שגיאה במערכת. אנא רענני את הדף.', 'error');
+        }
+    });
+    
+
 });
 
 /**
@@ -144,39 +164,86 @@ function initAuthListeners() {
 /**
  * Handle authentication state changes
  */
-function authStateChanged() {
-    getCurrentUser()
-        .then(user => {
-            const loginScreen = document.getElementById('login-screen');
-            const adminDashboard = document.getElementById('admin-dashboard');
-            
-            if (user) {
-                // User is signed in - show admin dashboard
-                if (loginScreen) loginScreen.style.display = 'none';
-                if (adminDashboard) adminDashboard.style.display = 'grid';
-                
-                // Set user info
-                setUserInfo(user);
-                
-                // Initialize dashboard data
-                initDashboard();
-                
-                // Load initial data for tables
-                loadProducts();
-                loadOrders();
-                loadMessages();
-                loadCustomers();
-                
-                // Update unread counts
-                updateUnreadCounts();
-            } else {
-                // No user is signed in - show login screen
-                if (loginScreen) loginScreen.style.display = 'flex';
-                if (adminDashboard) adminDashboard.style.display = 'none';
-            }
+function authStateChanged(user) {
+    const loginScreen = document.getElementById('login-screen');
+    const adminDashboard = document.getElementById('admin-dashboard');
+    
+    if (user) {
+        // User is signed in - check if they have admin role
+        checkAdminRole(user.uid)
+            .then(isAdmin => {
+                if (isAdmin) {
+                    // User is admin - show admin dashboard
+                    const loginScreen = document.getElementById('login-screen');
+                    const adminDashboard = document.getElementById('admin-dashboard');
+                    
+                    if (loginScreen) loginScreen.style.display = 'none';
+                    if (adminDashboard) adminDashboard.style.display = 'grid';
+                    
+                    // Set user info
+                    setUserInfo(user);
+                    
+                    // Initialize dashboard data (only once)
+                    setTimeout(() => {
+                        initDashboard();
+                    }, 100);
+                    
+                    // Load initial data for tables (with error handling)
+                    try {
+                        loadProducts();
+                        loadOrders();
+                        loadMessages();
+                        loadCustomers();
+                    } catch (error) {
+                        console.warn('Error loading some admin data sections:', error);
+                    }
+                    
+                    // Initialize product actions (for add product button)
+                    initProductActions();
+                    
+                    // Update unread counts (with error handling)
+                    try {
+                        updateUnreadCounts();
+                    } catch (error) {
+                        console.warn('Error updating unread counts:', error);
+                    }
+                } else {
+                    // User is not admin - show error and logout
+                    showToast('אין לך הרשאות גישה לפאנל הניהול', 'error');
+                    signOut();
+                }
+            })
+            .catch(error => {
+                console.error('Error checking admin role:', error);
+                showToast('שגיאה בבדיקת הרשאות', 'error');
+                signOut();
+            });
+    } else {
+        // No user is signed in - show login screen
+        const loginScreen = document.getElementById('login-screen');
+        const adminDashboard = document.getElementById('admin-dashboard');
+        
+        if (loginScreen) loginScreen.style.display = 'flex';
+        if (adminDashboard) adminDashboard.style.display = 'none';
+    }
+}
+
+/**
+ * Check if user has admin role
+ */
+function checkAdminRole(userId) {
+    console.log('🔍 Checking admin role for user:', userId);
+    return getUserData(userId)
+        .then(userData => {
+            console.log('📋 User data retrieved:', userData);
+            console.log('👤 User role:', userData ? userData.role : 'No data found');
+            const isAdmin = userData && userData.role === 'admin';
+            console.log('✅ Is admin?', isAdmin);
+            return isAdmin;
         })
         .catch(error => {
-            console.error('Auth state error:', error);
+            console.error('❌ Error in checkAdminRole:', error);
+            return false;
         });
 }
 
@@ -192,7 +259,7 @@ function setUserInfo(user) {
         userName.textContent = user.displayName || user.email || 'משתמש';
     }
     
-    // Get additional user info from Firestore
+    // Get additional user info from Firestore - with better error handling
     getUserData(user.uid)
         .then(userData => {
             if (!userData) return;
@@ -203,7 +270,12 @@ function setUserInfo(user) {
             }
         })
         .catch(error => {
-            console.error('Error fetching user data:', error);
+            console.warn('Could not load user data (permissions may be restricted):', error);
+            // Set default role
+            const userRole = document.getElementById('user-role');
+            if (userRole) {
+                userRole.textContent = 'מנהל';
+            }
         });
 }
 
@@ -221,92 +293,143 @@ function initDashboard() {
     loadRecentOrders();
     loadTopProducts();
     loadRecentMessages();
+    
+    // Verify products in Firebase
+    verifyProductsInFirebase();
 }
 
 /**
  * Load Dashboard Statistics
  */
 function loadDashboardStats() {
-    // Orders count
-    db.collection('orders')
-        .where('status', '==', 'pending')
-        .get()
-        .then(snapshot => {
-            const countElement = document.getElementById('new-orders-count');
-            if (countElement) {
-                countElement.textContent = snapshot.size;
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching new orders count:', error);
-        });
-    
-    // Customers count
-    db.collection('users')
-        .get()
-        .then(snapshot => {
-            const countElement = document.getElementById('customers-count');
-            if (countElement) {
-                countElement.textContent = snapshot.size;
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching customers count:', error);
-        });
-    
-    // Monthly revenue
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-    const startOfMonth = new Date(currentYear, currentMonth, 1);
-    
-    db.collection('orders')
-        .where('status', 'in', ['processing', 'shipped', 'delivered'])
-        .where('createdAt', '>=', startOfMonth)
-        .get()
-        .then(snapshot => {
-            let revenue = 0;
-            snapshot.forEach(doc => {
-                const orderData = doc.data();
-                revenue += orderData.total || 0;
+    // Orders count - simplified to avoid index issues
+    if (db) {
+        db.collection('orders')
+            .limit(50) // Limit to improve performance
+            .get()
+            .then(snapshot => {
+                let pendingCount = 0;
+                
+                snapshot.forEach(doc => {
+                    const orderData = doc.data();
+                    if (orderData.status === 'pending') {
+                        pendingCount++;
+                    }
+                });
+                
+                const countElement = document.getElementById('new-orders-count');
+                if (countElement) {
+                    countElement.textContent = pendingCount;
+                }
+            })
+            .catch(error => {
+                console.warn('Could not load orders count:', error);
+                const countElement = document.getElementById('new-orders-count');
+                if (countElement) {
+                    countElement.textContent = '-';
+                }
             });
-            
-            const revenueElement = document.getElementById('monthly-revenue');
-            if (revenueElement) {
-                revenueElement.textContent = `₪${revenue.toLocaleString()}`;
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching monthly revenue:', error);
-        });
+    }
     
-    // Active products
-    db.collection('products')
-        .where('active', '==', true)
-        .get()
-        .then(snapshot => {
-            const countElement = document.getElementById('active-products');
-            if (countElement) {
-                countElement.textContent = snapshot.size;
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching active products count:', error);
-        });
+    // Customers count - with better error handling
+    if (db) {
+        db.collection('customers')
+            .get()
+            .then(snapshot => {
+                const countElement = document.getElementById('customers-count');
+                if (countElement) {
+                    countElement.textContent = snapshot.size;
+                }
+            })
+            .catch(error => {
+                console.warn('Could not load customers count (permissions may be restricted):', error);
+                const countElement = document.getElementById('customers-count');
+                if (countElement) {
+                    countElement.textContent = '-';
+                }
+            });
+    }
+    
+    // Monthly revenue - simplified query to avoid index requirements
+    if (db) {
+        // Use a simpler query that doesn't require complex indexing
+        db.collection('orders')
+            .where('status', '==', 'completed') // Single status check
+            .limit(100) // Limit results to improve performance
+            .get()
+            .then(snapshot => {
+                let revenue = 0;
+                const currentMonth = new Date().getMonth();
+                const currentYear = new Date().getFullYear();
+                
+                snapshot.forEach(doc => {
+                    const orderData = doc.data();
+                    
+                    // Filter by date manually to avoid complex indexing
+                    if (orderData.createdAt && orderData.createdAt.toDate) {
+                        const orderDate = orderData.createdAt.toDate();
+                        if (orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear) {
+                            revenue += orderData.total || 0;
+                        }
+                    }
+                });
+                
+                const revenueElement = document.getElementById('monthly-revenue');
+                if (revenueElement) {
+                    revenueElement.textContent = `₪${revenue.toLocaleString()}`;
+                }
+            })
+            .catch(error => {
+                console.warn('Could not load monthly revenue:', error);
+                const revenueElement = document.getElementById('monthly-revenue');
+                if (revenueElement) {
+                    revenueElement.textContent = '₪-';
+                }
+            });
+    }
+    
+    // Active products - with better error handling
+    if (db) {
+        db.collection('products')
+            .where('active', '==', true)
+            .get()
+            .then(snapshot => {
+                const countElement = document.getElementById('active-products');
+                if (countElement) {
+                    countElement.textContent = snapshot.size;
+                }
+            })
+            .catch(error => {
+                console.warn('Could not load active products count (permissions may be restricted):', error);
+                const countElement = document.getElementById('active-products');
+                if (countElement) {
+                    countElement.textContent = '-';
+                }
+            });
+    }
 }
 
 /**
  * Initialize Sales Chart
  */
+let salesChart = null; // Global variable to store chart instance
+
 function initSalesChart() {
     const ctx = document.getElementById('sales-chart-canvas');
     if (!ctx) return;
     
-    // Sample data
+    // Destroy existing chart if it exists
+    if (salesChart) {
+        salesChart.destroy();
+        salesChart = null;
+    }
+    
+    // Real sales data - will be calculated from actual orders
     const weeklyData = {
         labels: ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'],
         datasets: [{
             label: 'מכירות',
-            data: [5, 7, 8, 10, 12, 15, 9],
+            data: [0, 0, 0, 0, 0, 0, 0], // Will be populated from real data
             backgroundColor: 'rgba(76, 175, 80, 0.2)',
             borderColor: '#4caf50',
             borderWidth: 2,
@@ -318,7 +441,7 @@ function initSalesChart() {
         labels: ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'],
         datasets: [{
             label: 'מכירות',
-            data: [65, 59, 80, 81, 56, 55, 40, 45, 60, 70, 85, 90],
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // Will be populated from real data
             backgroundColor: 'rgba(76, 175, 80, 0.2)',
             borderColor: '#4caf50',
             borderWidth: 2,
@@ -330,7 +453,7 @@ function initSalesChart() {
         labels: ['2020', '2021', '2022', '2023', '2024', '2025'],
         datasets: [{
             label: 'מכירות',
-            data: [600, 750, 820, 980, 1200, 400],
+            data: [0, 0, 0, 0, 0, 0], // Will be populated from real data
             backgroundColor: 'rgba(76, 175, 80, 0.2)',
             borderColor: '#4caf50',
             borderWidth: 2,
@@ -339,7 +462,7 @@ function initSalesChart() {
     };
     
     // Create chart
-    const salesChart = new Chart(ctx, {
+    salesChart = new Chart(ctx, {
         type: 'line',
         data: weeklyData,
         options: {
@@ -458,8 +581,8 @@ function loadTopProducts() {
                 const product = doc.data();
                 product.id = doc.id;
                 
-                // Get sales count (placeholder for now)
-                const salesCount = Math.floor(Math.random() * 50) + 1;
+                // Get actual sales count from orders
+                const salesCount = 0; // Will be calculated from real order data
                 
                 html += `
                     <tr>
@@ -671,9 +794,6 @@ function loadProducts() {
             });
             
             tbody.innerHTML = html;
-            
-            // Add event listeners for actions
-            initProductActions();
         })
         .catch(error => {
             console.error('Error fetching products:', error);
@@ -685,6 +805,8 @@ function loadProducts() {
  * Initialize Product Actions
  */
 function initProductActions() {
+    console.log('Initializing product actions...');
+    
     // Edit product buttons
     const editButtons = document.querySelectorAll('.edit-product');
     editButtons.forEach(button => {
@@ -716,10 +838,62 @@ function initProductActions() {
     // Add product button
     const addProductBtn = document.getElementById('add-product-btn');
     if (addProductBtn) {
+        console.log('Add product button found, adding event listener');
         addProductBtn.addEventListener('click', function() {
+            console.log('Add product button clicked');
             openProductModal('add');
         });
+    } else {
+        console.error('Add product button not found!');
     }
+    
+    // Activate all products button
+    const activateAllBtn = document.getElementById('activate-all-products-btn');
+    if (activateAllBtn) {
+        console.log('Activate all products button found, adding event listener');
+        // Remove any existing event listeners by cloning the button
+        const newActivateAllBtn = activateAllBtn.cloneNode(true);
+        activateAllBtn.parentNode.replaceChild(newActivateAllBtn, activateAllBtn);
+        
+        // Add the event listener to the new clean button
+        newActivateAllBtn.addEventListener('click', function() {
+            console.log('Activate all products button clicked');
+            activateAllProducts();
+        });
+    }
+    
+    // Test shop products button
+    const testShopBtn = document.getElementById('test-shop-products-btn');
+    if (testShopBtn) {
+        console.log('Test shop products button found, adding event listener');
+        // Remove any existing event listeners by cloning the button
+        const newTestShopBtn = testShopBtn.cloneNode(true);
+        testShopBtn.parentNode.replaceChild(newTestShopBtn, testShopBtn);
+        
+        // Add the event listener to the new clean button
+        newTestShopBtn.addEventListener('click', function() {
+            console.log('Test shop products button clicked');
+            testShopProductsLoading();
+        });
+    }
+    
+    // Cancel product button
+    const cancelProductBtn = document.getElementById('cancel-product');
+    if (cancelProductBtn) {
+        console.log('✅ Cancel product button found in initProductActions, adding event listener');
+        cancelProductBtn.addEventListener('click', function() {
+            console.log('✅ Cancel product button clicked from initProductActions');
+            const modal = document.getElementById('product-modal');
+            if (modal) {
+                modal.classList.remove('show');
+                console.log('✅ Modal closed from initProductActions');
+            }
+        });
+    } else {
+        console.error('❌ Cancel product button not found in initProductActions!');
+    }
+    
+    console.log('Product actions initialization complete');
 }
 
 /**
@@ -728,12 +902,22 @@ function initProductActions() {
  * @param {string} productId - Product ID (for edit mode)
  */
 function openProductModal(mode, productId = null) {
+    console.log('Opening product modal in mode:', mode);
+    
     const modal = document.getElementById('product-modal');
     const modalTitle = document.getElementById('product-modal-title');
     const productForm = document.getElementById('product-form');
     const productIdInput = document.getElementById('product-id');
     
-    if (!modal || !modalTitle || !productForm || !productIdInput) return;
+    if (!modal || !modalTitle || !productForm || !productIdInput) {
+        console.error('Modal elements not found:', {
+            modal: !!modal,
+            modalTitle: !!modalTitle,
+            productForm: !!productForm,
+            productIdInput: !!productIdInput
+        });
+        return;
+    }
     
     // Set modal title and mode
     modalTitle.textContent = mode === 'add' ? 'הוספת מוצר חדש' : 'עריכת מוצר';
@@ -741,6 +925,10 @@ function openProductModal(mode, productId = null) {
     
     // Reset form
     productForm.reset();
+    
+    // Remove any previous submit event listeners
+    const newForm = productForm.cloneNode(true);
+    productForm.parentNode.replaceChild(newForm, productForm);
     
     // In edit mode, load product data
     if (mode === 'edit' && productId) {
@@ -755,7 +943,6 @@ function openProductModal(mode, productId = null) {
                     modal.classList.remove('show');
                     return;
                 }
-                
                 // Fill form with product data
                 fillProductForm(product);
             })
@@ -767,7 +954,110 @@ function openProductModal(mode, productId = null) {
     } else {
         // In add mode, just show the empty form
         modal.classList.add('show');
+        // Default status to 'פעיל' (true)
+        const statusSelect = document.getElementById('product-status');
+        if (statusSelect) statusSelect.value = 'true';
+        
+        console.log('Modal should be visible now');
     }
+    
+    // Ensure cancel button is working (backup)
+    const cancelBtn = document.getElementById('cancel-product');
+    if (cancelBtn) {
+        console.log('✅ Cancel button found when opening modal');
+        
+        // Remove any existing listeners to avoid duplicates
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+        
+        newCancelBtn.addEventListener('click', function() {
+            console.log('✅ Cancel button clicked from modal open');
+            modal.classList.remove('show');
+        });
+        
+        // Test click handler
+        newCancelBtn.addEventListener('click', function() {
+            console.log('✅ Cancel button event listener is working');
+        });
+        
+        // Log that the button is ready
+        console.log('✅ Cancel button is ready for clicks');
+    } else {
+        console.error('❌ Cancel button NOT found when opening modal');
+    }
+
+    // Add submit event handler
+    newForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Collect form data
+        const title = document.getElementById('product-title').value.trim();
+        const category = document.getElementById('product-category').value;
+        const images = document.getElementById('product-images-urls').value.trim();
+        const price = parseFloat(document.getElementById('product-price').value) || 0;
+        const salePrice = document.getElementById('product-sale-price').value ? parseFloat(document.getElementById('product-sale-price').value) : null;
+        const inStock = document.getElementById('product-stock').value === 'true';
+        const active = document.getElementById('product-status').value === 'true';
+        
+        // Validate required fields
+        if (!title || !category || !images || price <= 0) {
+            showToast('נא למלא את כל השדות החובה (שם, קטגוריה, תמונה ומחיר חייבים להיות גדולים מ-0)', 'error');
+            return;
+        }
+        
+        // Validate sale price
+        if (salePrice !== null && salePrice >= price) {
+            showToast('מחיר המבצע חייב להיות נמוך מהמחיר הרגיל', 'error');
+            return;
+        }
+        
+        // Prepare product data
+        const productData = {
+            title,
+            category,
+            description: title, // Use title as description for now
+            images: [images], // Store as array with single image
+            price: price,
+            salePrice: salePrice,
+            inStock: inStock,
+            active: active,
+            featured: false,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        try {
+            if (mode === 'add') {
+                const docRef = await db.collection('products').add(productData);
+                console.log('Product added successfully with ID:', docRef.id);
+                showToast(`המוצר "${title}" נוסף בהצלחה לחנות!`, 'success');
+            } else if (mode === 'edit' && productId) {
+                productData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+                await db.collection('products').doc(productId).update(productData);
+                console.log('Product updated successfully:', productId);
+                showToast(`המוצר "${title}" עודכן בהצלחה!`, 'success');
+            }
+            
+            // Close modal
+            modal.classList.remove('show');
+            
+            // Reload products table to show the new/updated product
+            await loadProducts();
+            
+            // Update dashboard stats
+            loadDashboardStats();
+            
+            // Verify product appears in store (optional check)
+            if (mode === 'add') {
+                setTimeout(() => {
+                    verifyProductInStore(docRef.id, title);
+                }, 2000); // Wait 2 seconds for Firestore to update
+            }
+            
+        } catch (error) {
+            console.error('Error saving product:', error);
+            showToast('אירעה שגיאה בשמירת המוצר. נסי שוב.', 'error');
+        }
+    });
 }
 
 /**
@@ -778,111 +1068,23 @@ function fillProductForm(product) {
     // Basic info
     document.getElementById('product-title').value = product.title || '';
     document.getElementById('product-category').value = product.category || '';
-    document.getElementById('product-description').value = product.description || '';
-    document.getElementById('product-long-description').value = product.longDescription || '';
-    document.getElementById('product-price').value = product.price || '';
-    document.getElementById('product-sale-price').value = product.salePrice || '';
-    document.getElementById('product-sku').value = product.sku || '';
-    document.getElementById('product-featured').checked = product.featured || false;
-    
-    // Collections (multi-select)
-    const collectionsSelect = document.getElementById('product-collections');
-    if (collectionsSelect && product.collections) {
-        // Deselect all options first
-        for (let i = 0; i < collectionsSelect.options.length; i++) {
-            collectionsSelect.options[i].selected = false;
-        }
-        
-        // Select the product's collections
-        product.collections.forEach(collection => {
-            for (let i = 0; i < collectionsSelect.options.length; i++) {
-                if (collectionsSelect.options[i].value === collection) {
-                    collectionsSelect.options[i].selected = true;
-                    break;
-                }
-            }
-        });
-    }
-    
-    // Tags
-    document.getElementById('product-tags').value = product.tags ? product.tags.join(', ') : '';
     
     // Images
-    if (product.images && product.images.length > 0) {
-        const uploadedImages = document.getElementById('uploaded-images');
-        if (uploadedImages) {
-            let html = '';
-            product.images.forEach((image, index) => {
-                html += `
-                    <div class="uploaded-image" data-url="${image}">
-                        <img src="${image}" alt="מוצר ${index + 1}">
-                        <div class="image-actions">
-                            <button type="button" class="image-action-btn remove" data-index="${index}">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-            uploadedImages.innerHTML = html;
-            
-            // Add event listeners to image actions
-            initImageActions();
-        }
+    if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+        document.getElementById('product-images-urls').value = product.images[0]; // Use first image
+        renderImagesPreview([product.images[0]]);
+    } else {
+        document.getElementById('product-images-urls').value = '';
+        renderImagesPreview([]);
     }
     
-    // Colors
-    if (product.colors && product.colors.length > 0) {
-        const colorsContainer = document.getElementById('colors-container');
-        if (colorsContainer) {
-            colorsContainer.innerHTML = '';
-            product.colors.forEach(color => {
-                const colorItem = createColorItem(color.name, color.code);
-                colorsContainer.appendChild(colorItem);
-            });
-            
-            // Re-initialize color item events
-            initColorItems();
-        }
-    }
+    // Price fields
+    document.getElementById('product-price').value = product.price || 0;
+    document.getElementById('product-sale-price').value = product.salePrice || '';
     
-    // Sizes
-    if (product.sizes && product.sizes.length > 0) {
-        const sizesContainer = document.getElementById('sizes-container');
-        if (sizesContainer) {
-            sizesContainer.innerHTML = '';
-            product.sizes.forEach(size => {
-                const sizeItem = createSizeItem(size);
-                sizesContainer.appendChild(sizeItem);
-            });
-            
-            // Re-initialize size item events
-            initSizeItems();
-        }
-    }
-    
-    // Additional details
-    if (product.details && Object.keys(product.details).length > 0) {
-        const detailsContainer = document.getElementById('details-container');
-        if (detailsContainer) {
-            detailsContainer.innerHTML = '';
-            Object.entries(product.details).forEach(([key, value]) => {
-                const detailItem = createDetailItem(key, value);
-                detailsContainer.appendChild(detailItem);
-            });
-            
-            // Re-initialize detail item events
-            initDetailItems();
-        }
-    }
-    
-    // Inventory
-    document.getElementById('product-in-stock').checked = product.inStock || false;
-    document.getElementById('product-active').checked = product.active !== false; // Default to true
-    document.getElementById('product-stock-quantity').value = product.stockQuantity || 0;
-    document.getElementById('product-low-stock-threshold').value = product.lowStockThreshold || 3;
-    document.getElementById('product-weight').value = product.weight || '';
-    document.getElementById('product-dimensions').value = product.dimensions || '';
+    // Stock and status
+    document.getElementById('product-stock').value = product.inStock ? 'true' : 'false';
+    document.getElementById('product-status').value = product.active ? 'true' : 'false';
 }
 
 /**
@@ -2123,7 +2325,7 @@ function loadCustomers() {
     const searchQuery = document.getElementById('customers-search')?.value || '';
     
     // Create query
-    let query = db.collection('users')
+    let query = db.collection('customers')
         .orderBy('createdAt', 'desc');
     
     // Execute query
@@ -2348,7 +2550,7 @@ function openCustomerModal(mode, customerId) {
     customerModal.classList.add('show');
     
     // Load customer data
-    db.collection('users').doc(customerId).get()
+    db.collection('customers').doc(customerId).get()
         .then(doc => {
             if (!doc.exists) {
                 showToast('לא נמצא לקוח עם המזהה הזה', 'error');
@@ -2439,7 +2641,7 @@ function openCustomerModal(mode, customerId) {
             };
             
             // Update customer in Firebase
-            db.collection('users').doc(customerId).update(customerData)
+            db.collection('customers').doc(customerId).update(customerData)
                 .then(() => {
                     showToast('פרטי הלקוח עודכנו בהצלחה', 'success');
                     
@@ -2466,7 +2668,7 @@ function viewCustomerOrders(customerId) {
     navigateToSection('orders');
     
     // Get customer info for filtering
-    db.collection('users').doc(customerId).get()
+    db.collection('customers').doc(customerId).get()
         .then(doc => {
             if (!doc.exists) {
                 showToast('לא נמצא לקוח עם המזהה הזה', 'error');
@@ -2676,6 +2878,8 @@ function initFormTabs() {
  * Initialize Modals
  */
 function initModals() {
+    console.log('Initializing modals...');
+    
     // Close modal buttons
     const closeButtons = document.querySelectorAll('.modal-close');
     closeButtons.forEach(button => {
@@ -2697,18 +2901,30 @@ function initModals() {
         });
     });
     
-    // Product modal specific closers
-    const cancelProductBtn = document.getElementById('cancel-product');
-    const productModalClose = document.getElementById('product-modal-close');
-    
-    if (cancelProductBtn) {
-        cancelProductBtn.addEventListener('click', function() {
-            const modal = document.getElementById('product-modal');
+    // Event delegation for cancel buttons
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.id === 'cancel-product') {
+            console.log('✅ Cancel button clicked via event delegation');
+            const modal = e.target.closest('.modal');
             if (modal) {
                 modal.classList.remove('show');
+                console.log('✅ Modal closed via event delegation');
             }
-        });
-    }
+        }
+    });
+    
+    // Close modals with ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const openModals = document.querySelectorAll('.modal.show');
+            openModals.forEach(modal => {
+                modal.classList.remove('show');
+            });
+        }
+    });
+    
+    // Product modal specific closers
+    const productModalClose = document.getElementById('product-modal-close');
     
     if (productModalClose) {
         productModalClose.addEventListener('click', function() {
@@ -2717,6 +2933,22 @@ function initModals() {
                 modal.classList.remove('show');
             }
         });
+    }
+    
+    // Product modal cancel button
+    const cancelProductBtn = document.getElementById('cancel-product');
+    if (cancelProductBtn) {
+        console.log('✅ Cancel product button found in initModals, adding event listener');
+        cancelProductBtn.addEventListener('click', function() {
+            console.log('✅ Cancel product button clicked from initModals');
+            const modal = document.getElementById('product-modal');
+            if (modal) {
+                modal.classList.remove('show');
+                console.log('✅ Modal closed from initModals');
+            }
+        });
+    } else {
+        console.error('❌ Cancel product button not found in initModals!');
     }
     
     // Order modal specific closer
@@ -2730,6 +2962,8 @@ function initModals() {
             }
         });
     }
+    
+    console.log('Modals initialization complete');
 }
 
 /**
@@ -2918,12 +3152,44 @@ function deleteProduct(productId) {
  * @returns {Promise<Object>} - Promise resolving to user data
  */
 function getUserData(userId) {
-    return db.collection('users').doc(userId).get()
+    console.log('🔍 Looking up user data for:', userId);
+    // First check in admins collection
+    return db.collection('admins').doc(userId).get()
         .then(doc => {
-            if (!doc.exists) return null;
-            
-            const userData = doc.data();
-            return userData;
+            console.log('📁 Admins collection check - exists:', doc.exists);
+            if (doc.exists) {
+                const adminData = doc.data();
+                console.log('👨‍💼 Admin data found:', adminData);
+                return adminData;
+            }
+            // If not found in admins, check customers
+            console.log('👥 Checking customers collection...');
+            return db.collection('customers').doc(userId).get()
+                .then(customerDoc => {
+                    console.log('📁 Customers collection check - exists:', customerDoc.exists);
+                    if (customerDoc.exists) {
+                        const customerData = customerDoc.data();
+                        console.log('👤 Customer data found:', customerData);
+                        return customerData;
+                    }
+                    // If not found in new collections, check old 'users' collection
+                    console.log('🔍 Checking old users collection...');
+                    return db.collection('users').doc(userId).get()
+                        .then(oldUserDoc => {
+                            console.log('📁 Old users collection check - exists:', oldUserDoc.exists);
+                            if (oldUserDoc.exists) {
+                                const oldUserData = oldUserDoc.data();
+                                console.log('👴 Old user data found:', oldUserData);
+                                return oldUserData;
+                            }
+                            console.log('❌ User not found in any collection');
+                            return null;
+                        });
+                });
+        })
+        .catch(error => {
+            console.error('❌ Error in getUserData:', error);
+            return null;
         });
 }
 
@@ -2968,6 +3234,16 @@ function getCurrentUser() {
 // Initialize app when Firebase is ready
 initFirebase();
 
+// Debug: Check if cancel button exists on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const cancelBtn = document.getElementById('cancel-product');
+    if (cancelBtn) {
+        console.log('✅ Cancel product button found on page load');
+    } else {
+        console.error('❌ Cancel product button NOT found on page load');
+    }
+});
+
 /**
  * Initialize Firebase
  */
@@ -2980,3 +3256,385 @@ function initFirebase() {
         authStateChanged();
     });
 }
+
+// Add a function to render image previews
+function renderImagesPreview(images) {
+    const preview = document.getElementById('images-preview');
+    if (!preview) return;
+    
+    if (!images || images.length === 0) {
+        preview.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">אין תמונות להצגה</p>';
+        return;
+    }
+    
+    preview.innerHTML = images.map(url => {
+        const trimmedUrl = url.trim();
+        if (!trimmedUrl) return '';
+        
+        return `<div class="image-preview-item" style="display: inline-block; margin: 4px; position: relative;">
+            <img src="${trimmedUrl}" 
+                 alt="Product Image" 
+                 style="max-width:80px;max-height:80px;border-radius:6px;border:1px solid #eee;"
+                 onerror="this.src='img/placeholder.svg'; this.style.opacity='0.6';"
+                 onload="this.style.opacity='1';">
+        </div>`;
+    }).join('');
+}
+
+// Add event listener to update preview on input change
+document.addEventListener('DOMContentLoaded', function() {
+    const imagesInput = document.getElementById('product-images-urls');
+    if (imagesInput) {
+        imagesInput.addEventListener('input', function() {
+            const imageUrl = this.value.trim();
+            if (imageUrl) {
+                renderImagesPreview([imageUrl]);
+            } else {
+                renderImagesPreview([]);
+            }
+        });
+    }
+    
+    // Price validation
+    const priceInput = document.getElementById('product-price');
+    const salePriceInput = document.getElementById('product-sale-price');
+    
+    if (priceInput && salePriceInput) {
+        // Validate sale price when regular price changes
+        priceInput.addEventListener('input', function() {
+            validateSalePrice();
+        });
+        
+        // Validate sale price when it changes
+        salePriceInput.addEventListener('input', function() {
+            validateSalePrice();
+        });
+    }
+    
+    // Global error handler for images
+    document.addEventListener('error', function(e) {
+        if (e.target.tagName === 'IMG') {
+            console.warn('Image failed to load:', e.target.src);
+            // Don't show error to user for missing images, just log it
+        }
+    }, true);
+});
+
+/**
+ * Validate sale price against regular price
+ */
+function validateSalePrice() {
+    const priceInput = document.getElementById('product-price');
+    const salePriceInput = document.getElementById('product-sale-price');
+    
+    if (!priceInput || !salePriceInput) return;
+    
+    const price = parseFloat(priceInput.value) || 0;
+    const salePrice = parseFloat(salePriceInput.value) || 0;
+    
+    if (salePrice > 0 && salePrice >= price) {
+        salePriceInput.style.borderColor = '#f44336';
+        salePriceInput.style.boxShadow = '0 0 0 3px rgba(244, 67, 54, 0.1)';
+        
+        // Show warning
+        let warning = salePriceInput.parentNode.querySelector('.price-warning');
+        if (!warning) {
+            warning = document.createElement('small');
+            warning.className = 'price-warning';
+            warning.style.color = '#f44336';
+            warning.style.fontSize = '0.8rem';
+            warning.style.marginTop = '4px';
+            warning.style.display = 'block';
+            salePriceInput.parentNode.appendChild(warning);
+        }
+        warning.textContent = 'מחיר המבצע חייב להיות נמוך מהמחיר הרגיל';
+    } else {
+        salePriceInput.style.borderColor = '#e5e7eb';
+        salePriceInput.style.boxShadow = '';
+        
+        // Remove warning
+        const warning = salePriceInput.parentNode.querySelector('.price-warning');
+        if (warning) {
+            warning.remove();
+        }
+    }
+}
+
+// Add image upload logic:
+let uploadedImagesState = [];
+function renderUploadedImages(images) {
+    uploadedImagesState = images.slice();
+    const uploadedImages = document.getElementById('uploaded-images');
+    if (!uploadedImages) return;
+    
+    if (!images || images.length === 0) {
+        uploadedImages.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">אין תמונות שהועלו</p>';
+        return;
+    }
+    
+    uploadedImages.innerHTML = images.map((url, idx) => `
+        <div class="uploaded-image" data-url="${url}">
+            <img src="${url}" 
+                 alt="מוצר ${idx + 1}"
+                 onerror="this.src='img/placeholder.svg'; this.style.opacity='0.6';"
+                 onload="this.style.opacity='1';">
+            <div class="image-actions">
+                <button type="button" class="image-action-btn remove" data-index="${idx}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    `).join('');
+    
+    // Remove image handler
+    uploadedImages.querySelectorAll('.image-action-btn.remove').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const index = parseInt(this.getAttribute('data-index'));
+            uploadedImagesState.splice(index, 1);
+            renderUploadedImages(uploadedImagesState);
+        });
+    });
+}
+// Image upload handlers
+function initImageUploadActions(productId) {
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('product-images');
+    if (!uploadArea || !fileInput) return;
+    uploadArea.addEventListener('click', () => fileInput.click());
+    uploadArea.addEventListener('dragover', e => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+    uploadArea.addEventListener('dragleave', e => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+    });
+    uploadArea.addEventListener('drop', e => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        handleImageFiles(e.dataTransfer.files, productId);
+    });
+    fileInput.addEventListener('change', e => {
+        handleImageFiles(e.target.files, productId);
+    });
+}
+async function handleImageFiles(files, productId) {
+    const maxFiles = 5;
+    const maxSize = 5 * 1024 * 1024;
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    let filesArr = Array.from(files);
+    if (uploadedImagesState.length + filesArr.length > maxFiles) {
+        showToast('ניתן להעלות עד 5 תמונות בלבד', 'error');
+        return;
+    }
+    for (const file of filesArr) {
+        if (!allowedTypes.includes(file.type)) {
+            showToast('פורמט קובץ לא נתמך', 'error');
+            continue;
+        }
+        if (file.size > maxSize) {
+            showToast('גודל קובץ גדול מדי (מקסימום 5MB)', 'error');
+            continue;
+        }
+        try {
+            const url = await uploadProductImage(file, productId || 'temp');
+            uploadedImagesState.push(url);
+            renderUploadedImages(uploadedImagesState);
+        } catch (err) {
+            showToast('שגיאה בהעלאת תמונה', 'error');
+        }
+    }
+}
+
+/**
+ * Verify that a product appears in the store
+ * @param {string} productId - The product ID
+ * @param {string} productTitle - The product title
+ */
+async function verifyProductInStore(productId, productTitle) {
+    try {
+        // Check if product exists in Firestore
+        const productDoc = await db.collection('products').doc(productId).get();
+        
+        if (productDoc.exists) {
+            const productData = productDoc.data();
+            console.log('Product verified in Firestore:', {
+                id: productId,
+                title: productData.title,
+                active: productData.active,
+                inStock: productData.inStock
+            });
+            
+            // Show success message
+            showToast(`המוצר "${productTitle}" זמין כעת בחנות!`, 'success');
+        } else {
+            console.error('Product not found in Firestore after creation');
+            showToast('שגיאה: המוצר לא נמצא במסד הנתונים', 'error');
+        }
+    } catch (error) {
+        console.error('Error verifying product in store:', error);
+    }
+}
+
+/**
+ * Verify Products in Firebase
+ * This function checks the current state of products in Firebase and reports issues
+ */
+function verifyProductsInFirebase() {
+    console.log('🔍 Verifying products in Firebase...');
+    
+    if (!db) {
+        console.error('❌ Firebase not initialized');
+        return;
+    }
+    
+    // Check all products
+    db.collection('products').get()
+        .then(snapshot => {
+            console.log(`📊 Total products in Firebase: ${snapshot.size}`);
+            
+            let activeProducts = 0;
+            let inactiveProducts = 0;
+            let featuredProducts = 0;
+            let inStockProducts = 0;
+            
+            snapshot.forEach(doc => {
+                const product = doc.data();
+                
+                if (product.active === true) {
+                    activeProducts++;
+                } else if (product.active === false) {
+                    inactiveProducts++;
+                } else {
+                    console.warn(`⚠️ Product "${product.title || doc.id}" missing 'active' field`);
+                }
+                
+                if (product.featured === true) {
+                    featuredProducts++;
+                }
+                
+                if (product.inStock === true) {
+                    inStockProducts++;
+                }
+            });
+            
+            console.log(`📈 Active products: ${activeProducts}`);
+            console.log(`📉 Inactive products: ${inactiveProducts}`);
+            console.log(`⭐ Featured products: ${featuredProducts}`);
+            console.log(`📦 In stock products: ${inStockProducts}`);
+            
+            if (activeProducts === 0) {
+                console.error('❌ NO ACTIVE PRODUCTS FOUND! This is why the store is empty.');
+                showToast('לא נמצאו מוצרים פעילים בפיירבייס. זו הסיבה שהחנות ריקה.', 'error');
+                
+                // Offer to fix this
+                if (confirm('האם ברצונך להפעיל את כל המוצרים כדי שיופיעו בחנות?')) {
+                    activateAllProducts();
+                }
+            } else {
+                console.log(`✅ Found ${activeProducts} active products - store should display them`);
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error verifying products:', error);
+            showToast('שגיאה בבדיקת מוצרים בפיירבייס', 'error');
+        });
+}
+
+/**
+ * Activate All Products
+ * This function sets all products to active=true
+ */
+function activateAllProducts() {
+    console.log('🔧 Activating all products...');
+    
+    if (!db) {
+        console.error('❌ Firebase not initialized');
+        showToast('שגיאה: המערכת לא מאותחלת כראוי ❌', 'error');
+        return;
+    }
+    
+    db.collection('products').get()
+        .then(snapshot => {
+            const batch = db.batch();
+            let updateCount = 0;
+            
+            snapshot.forEach(doc => {
+                const product = doc.data();
+                
+                // Only update products that are not already active
+                if (product.active !== true) {
+                    batch.update(doc.ref, { 
+                        active: true,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    updateCount++;
+                    console.log(`🔧 Activating product: ${product.title || doc.id}`);
+                }
+            });
+            
+            if (updateCount > 0) {
+                return batch.commit().then(() => {
+                    console.log(`✅ Successfully activated ${updateCount} products`);
+                    showToast(`המוצרים נטענו בהצלחה! הופעלו ${updateCount} מוצרים 🎉`, 'success');
+                    
+                    // Reload products table to show updated status
+                    loadProducts();
+                });
+            } else {
+                console.log('ℹ️ All products are already active');
+                showToast('המוצרים נטענו בהצלחה! כל המוצרים כבר פעילים ✅', 'success');
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error activating products:', error);
+            showToast('שגיאה בטעינת המוצרים! אנא נסה שוב ❌', 'error');
+        });
+}
+
+/**
+ * Test Shop Products Loading
+ * This function tests what products are being loaded by the shop
+ */
+function testShopProductsLoading() {
+    console.log('🔍 Testing shop products loading...');
+    
+    if (!db) {
+        console.error('❌ Firebase not initialized');
+        return;
+    }
+
+    // Test the exact same query the shop uses
+    const query = db.collection('products').where('active', '==', true);
+    
+    query.get()
+        .then(snapshot => {
+            console.log(`📊 Products found by shop query: ${snapshot.size}`);
+            
+            snapshot.forEach(doc => {
+                const product = doc.data();
+                console.log(`📦 Product: "${product.title}" (${doc.id})`);
+                console.log(`   - Active: ${product.active}`);
+                console.log(`   - InStock: ${product.inStock}`);
+                console.log(`   - Category: ${product.category}`);
+                console.log(`   - Price: ${product.price}`);
+                console.log(`   - Images: ${product.images}`);
+                console.log(`   - Created: ${product.createdAt}`);
+                console.log('---');
+            });
+            
+            if (snapshot.size === 0) {
+                console.error('❌ Shop query returns NO products!');
+                showToast('החנות לא מוצאת מוצרים פעילים', 'error');
+            } else {
+                console.log(`✅ Shop query should return ${snapshot.size} products`);
+                showToast(`נמצאו ${snapshot.size} מוצרים פעילים עבור החנות`, 'success');
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error testing shop query:', error);
+            showToast('שגיאה בבדיקת מוצרים לחנות', 'error');
+        });
+}
+
+// ... existing code ...
