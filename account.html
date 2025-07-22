@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>חשבון אישי - DAMKA Swimwear</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="התחברי לחשבון האישי שלך ב-DAMKA Swimwear. צפי בהזמנות, עדכני פרטים אישיים ועוד">
+    <meta name="keywords" content="חשבון אישי, התחברות, הרשמה, דמקה בגדי ים">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- AOS Animation -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <style>
+        /* Account Page Specific Styles */
+        .account-container {
+            min-height: calc(100vh - var(--header-height));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        
+        .account-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+            margin: 0 1rem;
+        }
+        
+        .account-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .account-logo {
+            font-family: var(--heading-font);
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .account-subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .account-form {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: #f9fafb;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+        
+        .form-message {
+            padding: 0.75rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .form-message.success {
+            background: #d1e7dd;
+            color: #0f5132;
+            border: 1px solid #badbcc;
+            display: block;
+        }
+        
+        .form-message.error {
+            background: #f8d7da;
+            color: #842029;
+            border: 1px solid #f5c2c7;
+            display: block;
+        }
+        
+        .account-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 1rem;
+        }
+        
+        .account-btn:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+        }
+        
+        .account-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .form-footer {
+            text-align: center;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .form-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .form-link:hover {
+            color: var(--accent-dark);
+            text-decoration: underline;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 0.5rem 0;
+        }
+        
+        .checkbox-input {
+            display: none;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            user-select: none;
+        }
+        
+        .checkbox-custom {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            flex-shrink: 0;
+            vertical-align: middle;
+        }
+        
+        .checkbox-input:checked + .checkbox-label .checkbox-custom {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        
+        .checkbox-input:checked + .checkbox-label .checkbox-custom::after {
+            content: '✓';
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .checkbox-label:hover .checkbox-custom {
+            border-color: var(--accent);
+        }
+        
+        .checkbox-text {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 20px;
+            vertical-align: middle;
+        }
+        
+
+        
+        @media (max-width: 768px) {
+            .account-card {
+                padding: 2rem;
+                margin: 0 1rem;
+            }
+            
+
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-inner">
+                <div class="logo">
+                    <a href="index.html" class="logo-text">
+                        <span class="logo-main">DAMKA</span>
+                        <span class="logo-sub">SWIMWEAR</span>
+                    </a>
+                </div>
+                
+                <button class="mobile-toggle" aria-label="תפריט">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                
+                <nav class="nav">
+                    <ul class="nav-list">
+                        <li class="nav-item"><a href="index.html" class="nav-link">דף הבית</a></li>
+                        <li class="nav-item"><a href="shop.html" class="nav-link">חנות</a></li>
+                        <li class="nav-item"><a href="collections.html" class="nav-link">קולקציות</a></li>
+                        <li class="nav-item"><a href="about.html" class="nav-link">אודות</a></li>
+                        <li class="nav-item"><a href="contact.html" class="nav-link">צור קשר</a></li>
+                    </ul>
+                    
+                    <div class="nav-icons">
+                        <a href="account.html" class="nav-icon" aria-label="חשבון אישי">
+                            <i class="far fa-user"></i>
+                        </a>
+                        <a href="wishlist.html" class="nav-icon" aria-label="מוצרים שאהבתי">
+                            <i class="far fa-heart"></i>
+                            <span class="icon-badge wishlist-count">0</span>
+                        </a>
+                        <a href="cart.html" class="nav-icon" id="cart-icon" aria-label="סל קניות">
+                            <i class="fas fa-shopping-bag"></i>
+                            <span class="icon-badge cart-count">0</span>
+                        </a>
+                        <button class="nav-icon search-toggle" aria-label="חיפוש">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Login/Register Section -->
+    <section class="account-container" id="auth-section">
+        <div class="account-card">
+            <div class="account-header">
+                <div class="account-logo">DAMKA</div>
+                <div class="account-subtitle">התחברות / הרשמה לאתר</div>
+            </div>
+            
+            <!-- Login Form -->
+            <form class="account-form" id="login-form">
+                <div class="form-group">
+                    <label for="login-email">אימייל</label>
+                    <input type="email" id="login-email" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">סיסמה</label>
+                    <input type="password" id="login-password" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="remember-me" class="checkbox-input">
+                        <label for="remember-me" class="checkbox-label">
+                            <span class="checkbox-custom"></span>
+                        </label>
+                        <span class="checkbox-text">לזכור אותי</span>
+                    </div>
+                </div>
+                <div class="form-message" id="login-message"></div>
+                <button type="submit" class="account-btn">התחברות</button>
+                <div class="form-footer">
+                    <a href="#" id="show-register" class="form-link">עדיין אין לך חשבון? הירשמי</a>
+                    <br><br>
+                    <a href="#" id="forgot-password" class="form-link">שכחתי סיסמה</a>
+                </div>
+            </form>
+            
+            <!-- Register Form (Hidden by default) -->
+            <form class="account-form" id="register-form" style="display: none;">
+                <div class="form-group">
+                    <label for="register-name">שם מלא</label>
+                    <input type="text" id="register-name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">אימייל</label>
+                    <input type="email" id="register-email" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-phone">טלפון</label>
+                    <input type="tel" id="register-phone" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">סיסמה</label>
+                    <input type="password" id="register-password" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password-confirm">אימות סיסמה</label>
+                    <input type="password" id="register-password-confirm" class="form-input" required>
+                </div>
+                <div class="form-message" id="register-message"></div>
+                <button type="submit" class="account-btn">הרשמה</button>
+                <div class="form-footer">
+                    <a href="#" id="show-login" class="form-link">כבר יש לך חשבון? התחברי</a>
+                </div>
+            </form>
+            
+            <!-- Forgot Password Form (Hidden by default) -->
+            <form class="account-form" id="forgot-form" style="display: none;">
+                <div class="form-group">
+                    <label for="forgot-email">אימייל</label>
+                    <input type="email" id="forgot-email" class="form-input" required>
+                </div>
+                <div class="form-message" id="forgot-message"></div>
+                <button type="submit" class="account-btn">שלח הוראות איפוס</button>
+                <div class="form-footer">
+                    <a href="#" id="back-to-login" class="form-link">חזרה להתחברות</a>
+                </div>
+            </form>
+        </div>
+    </section>
+    
+
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo-text">
+                        <span class="logo-main">DAMKA</span>
+                        <span class="logo-sub">SWIMWEAR</span>
+                    </div>
+                    <p>בגדי ים איכותיים בעיצוב ישראלי</p>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="footer-section">
+                        <h4>קישורים מהירים</h4>
+                        <ul>
+                            <li><a href="index.html">דף הבית</a></li>
+                            <li><a href="shop.html">חנות</a></li>
+                            <li><a href="about.html">אודות</a></li>
+                            <li><a href="contact.html">צור קשר</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-section">
+                        <h4>עקבי אחרינו</h4>
+                        <div class="social-links">
+                            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                            <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                            <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 DAMKA Swimwear. כל הזכויות שמורות.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase JS -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    
+    <!-- Other JS Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/main.js"></script>
+    
+    <script>
+        // Customer Account JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication state
+            auth.onAuthStateChanged(handleAuthStateChange);
+            
+            // Form toggles
+            initFormToggles();
+            
+            // Form submissions
+            initFormSubmissions();
+        });
+        
+        function handleAuthStateChange(user) {
+            const authSection = document.getElementById('auth-section');
+            
+            if (user) {
+                // User is logged in - check if they're a customer
+                getUserData(user.uid)
+                    .then(userData => {
+                        if (userData && userData.role === 'customer') {
+                            // Customer logged in successfully - redirect to homepage
+                            showMessage('login-message', 'התחברת בהצלחה! מעביר לדף הראשי...', 'success');
+                            
+                            // Set flag for welcome message
+                            sessionStorage.setItem('justLoggedIn', 'true');
+                            
+                            setTimeout(() => {
+                                window.location.href = 'index.html';
+                            }, 1500);
+                        } else {
+                            // Not a customer - show login form
+                            showMessage('login-message', 'חשבון זה אינו זמין לגישת לקוחות', 'error');
+                            auth.signOut();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error getting user data:', error);
+                        showMessage('login-message', 'שגיאה בטעינת נתוני המשתמש', 'error');
+                        auth.signOut();
+                    });
+            } else {
+                // User is not logged in - show auth forms
+                authSection.style.display = 'flex';
+            }
+        }
+        
+        function initFormToggles() {
+            const showRegister = document.getElementById('show-register');
+            const showLogin = document.getElementById('show-login');
+            const forgotPassword = document.getElementById('forgot-password');
+            const backToLogin = document.getElementById('back-to-login');
+            
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const forgotForm = document.getElementById('forgot-form');
+            
+            showRegister.addEventListener('click', function(e) {
+                e.preventDefault();
+                loginForm.style.display = 'none';
+                forgotForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                document.querySelector('.account-subtitle').textContent = 'יצירת חשבון באתר';
+            });
+            
+            showLogin.addEventListener('click', function(e) {
+                e.preventDefault();
+                registerForm.style.display = 'none';
+                forgotForm.style.display = 'none';
+                loginForm.style.display = 'block';
+                document.querySelector('.account-subtitle').textContent = 'התחברות לאתר';
+            });
+            
+            forgotPassword.addEventListener('click', function(e) {
+                e.preventDefault();
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'none';
+                forgotForm.style.display = 'block';
+                document.querySelector('.account-subtitle').textContent = 'איפוס סיסמה';
+            });
+            
+            backToLogin.addEventListener('click', function(e) {
+                e.preventDefault();
+                forgotForm.style.display = 'none';
+                registerForm.style.display = 'none';
+                loginForm.style.display = 'block';
+                document.querySelector('.account-subtitle').textContent = 'התחברות לאתר';
+            });
+        }
+        
+        function initFormSubmissions() {
+            // Login form
+            document.getElementById('login-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                const rememberMe = document.getElementById('remember-me').checked;
+                
+                showMessage('login-message', 'מתחבר...', 'info');
+                
+                // Set auth persistence based on "Remember Me" checkbox
+                const persistence = rememberMe ? 
+                    firebase.auth.Auth.Persistence.LOCAL :    // Stay logged in until manual logout
+                    firebase.auth.Auth.Persistence.SESSION;   // Stay logged in until browser/tab closes
+                
+                auth.setPersistence(persistence)
+                    .then(() => {
+                        return auth.signInWithEmailAndPassword(email, password);
+                    })
+                    .then(() => {
+                        // Success message will be shown in handleAuthStateChange
+                        // which will redirect to homepage
+                        console.log('Login successful with persistence:', rememberMe ? 'LOCAL' : 'SESSION');
+                    })
+                    .catch(error => {
+                        console.error('Login error:', error);
+                        let errorMessage = 'אירעה שגיאה בהתחברות';
+                        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                            errorMessage = 'אימייל או סיסמה שגויים';
+                        } else if (error.code === 'auth/too-many-requests') {
+                            errorMessage = 'יותר מדי ניסיונות התחברות. נסי שוב מאוחר יותר';
+                        }
+                        showMessage('login-message', errorMessage, 'error');
+                    });
+            });
+            
+            // Register form
+            document.getElementById('register-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('register-name').value.trim();
+                const email = document.getElementById('register-email').value.trim();
+                const phone = document.getElementById('register-phone').value.trim();
+                const password = document.getElementById('register-password').value;
+                const passwordConfirm = document.getElementById('register-password-confirm').value;
+                
+                // Validation
+                if (!name || !email || !phone || !password || !passwordConfirm) {
+                    showMessage('register-message', 'יש למלא את כל השדות', 'error');
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    showMessage('register-message', 'הסיסמה חייבת להכיל לפחות 6 תווים', 'error');
+                    return;
+                }
+                
+                if (password !== passwordConfirm) {
+                    showMessage('register-message', 'הסיסמאות אינן תואמות', 'error');
+                    return;
+                }
+                
+                showMessage('register-message', 'יוצר חשבון...', 'info');
+                
+                // Create customer account
+                registerCustomer(email, password, {
+                    name: name,
+                    phone: phone
+                })
+                .then(() => {
+                    showMessage('register-message', 'נרשמת בהצלחה! מעביר לדף הראשי...', 'success');
+                    
+                    // Set flag for welcome message
+                    sessionStorage.setItem('justLoggedIn', 'true');
+                    
+                    // Redirect to homepage after successful registration
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                })
+                .catch(error => {
+                    console.error('Registration error:', error);
+                    let errorMessage = 'אירעה שגיאה בהרשמה';
+                    if (error.code === 'auth/email-already-in-use') {
+                        errorMessage = 'אימייל זה כבר רשום במערכת';
+                    } else if (error.code === 'auth/invalid-email') {
+                        errorMessage = 'אימייל לא תקין';
+                    } else if (error.code === 'auth/weak-password') {
+                        errorMessage = 'הסיסמה חלשה מדי';
+                    }
+                    showMessage('register-message', errorMessage, 'error');
+                });
+            });
+            
+            // Forgot password form
+            document.getElementById('forgot-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('forgot-email').value;
+                
+                showMessage('forgot-message', 'שולח הוראות איפוס...', 'info');
+                
+                auth.sendPasswordResetEmail(email)
+                    .then(() => {
+                        showMessage('forgot-message', 'הוראות לאיפוס הסיסמה נשלחו לאימייל שלך', 'success');
+                    })
+                    .catch(error => {
+                        console.error('Reset password error:', error);
+                        let errorMessage = 'אירעה שגיאה בשליחת הוראות האיפוס';
+                        if (error.code === 'auth/user-not-found') {
+                            errorMessage = 'לא נמצא משתמש עם אימייל זה';
+                        }
+                        showMessage('forgot-message', errorMessage, 'error');
+                    });
+            });
+            
+
+        }
+        
+        function showMessage(elementId, message, type) {
+            const messageElement = document.getElementById(elementId);
+            messageElement.textContent = message;
+            messageElement.className = `form-message ${type}`;
+            messageElement.style.display = 'block';
+        }
+    </script>
+</body>
+</html> 

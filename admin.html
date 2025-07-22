@@ -17,8 +17,7 @@
     <link rel="stylesheet" href="css/admin.css">
     
     <!-- Favicon -->
-    <link rel="icon" href="img/favicon.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+    <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 </head>
 <body>
     <!-- Admin Login Screen -->
@@ -47,6 +46,8 @@
                     <a href="#" id="reset-password-link">שכחתי סיסמה</a>
                 </div>
             </form>
+            
+
             
             <!-- Password Reset Form (Hidden by default) -->
             <form class="login-form" id="reset-form" style="display: none;">
@@ -312,11 +313,17 @@
                 <section id="products-section" class="admin-section">
                     <div class="section-header">
                         <h2>ניהול מוצרים</h2>
-                        <div class="actions">
-                            <button class="btn btn-primary" id="add-product-btn">
-                                <i class="fas fa-plus"></i> הוסף מוצר חדש
-                            </button>
-                        </div>
+                                            <div class="actions">
+                        <button class="btn btn-primary" id="add-product-btn">
+                            <i class="fas fa-plus"></i> הוסף מוצר חדש
+                        </button>
+                        <button class="btn btn-outline" id="activate-all-products-btn" title="הפעל את כל המוצרים כדי שיופיעו בחנות">
+                            <i class="fas fa-toggle-on"></i> הפעל כל המוצרים
+                        </button>
+                        <button class="btn btn-outline" id="test-shop-products-btn" title="בדוק איך החנות רואה את המוצרים">
+                            <i class="fas fa-search"></i> בדוק מוצרים בחנות
+                        </button>
+                    </div>
                     </div>
                     
                     <div class="filters-bar">
@@ -914,199 +921,63 @@
                 </div>
                 <div class="modal-body">
                     <form id="product-form" class="admin-form">
-                        <div class="form-tabs">
-                            <div class="tabs-nav">
-                                <button type="button" class="tab-btn active" data-tab="basic-info">מידע בסיסי</button>
-                                <button type="button" class="tab-btn" data-tab="images">תמונות</button>
-                                <button type="button" class="tab-btn" data-tab="attributes">מאפיינים</button>
-                                <button type="button" class="tab-btn" data-tab="inventory">מלאי</button>
+                        <div class="form-group">
+                            <label for="product-title">שם המוצר <span class="required">*</span></label>
+                            <input type="text" id="product-title" name="title" required placeholder="הזן את שם המוצר">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="product-category">קטגוריה <span class="required">*</span></label>
+                            <select id="product-category" name="category" required>
+                                <option value="">בחר קטגוריה</option>
+                                <option value="one-piece">בגדי ים שלמים</option>
+                                <option value="bikini">ביקיני</option>
+                                <option value="beachwear">בגדי חוף</option>
+                                <option value="accessories">אקססוריז</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="product-images-urls">תמונת המוצר <span class="required">*</span></label>
+                            <input type="text" id="product-images-urls" name="images" required placeholder="לדוג' img/my-product.jpg">
+                            <small>העלה את התמונה לתיקיית <b>/img/</b> באתר שלך ב-Vercel. הזן כאן את הנתיב (למשל: <code>img/my-product.jpg</code>).</small>
+                            <div id="images-preview" style="margin-top: 10px;"></div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="product-price">מחיר <span class="required">*</span></label>
+                                <div class="price-input-wrapper">
+                                    <input type="number" id="product-price" name="price" required placeholder="0" min="0" step="0.01">
+                                    <span class="currency-symbol">₪</span>
+                                </div>
                             </div>
                             
-                            <div class="tabs-content">
-                                <!-- Basic Info Tab -->
-                                <div class="tab-pane active" id="basic-info-tab">
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label for="product-title">שם המוצר <span class="required">*</span></label>
-                                            <input type="text" id="product-title" name="title" required>
-                                        </div>
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label for="product-category">קטגוריה <span class="required">*</span></label>
-                                            <select id="product-category" name="category" required>
-                                                <option value="">בחר קטגוריה</option>
-                                                <option value="one-piece">בגדי ים שלמים</option>
-                                                <option value="bikini">ביקיני</option>
-                                                <option value="beachwear">בגדי חוף</option>
-                                                <option value="accessories">אקססוריז</option>
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="product-collections">קולקציות</label>
-                                            <select id="product-collections" name="collections" multiple>
-                                                <option value="summer-2025">קיץ 2025</option>
-                                                <option value="winter-escape">חופשות חורף</option>
-                                                <option value="essentials">בייסיקס</option>
-                                                <option value="limited-edition">מהדורות מוגבלות</option>
-                                            </select>
-                                            <small>ניתן לבחור מספר קולקציות (לחיצה ארוכה על Ctrl/Command)</small>
-                                        </div>
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label for="product-description">תיאור קצר <span class="required">*</span></label>
-                                            <textarea id="product-description" name="description" rows="3" required></textarea>
-                                        </div>
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label for="product-long-description">תיאור מורחב</label>
-                                            <textarea id="product-long-description" name="longDescription" rows="5"></textarea>
-                                        </div>
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label for="product-price">מחיר (₪) <span class="required">*</span></label>
-                                            <input type="number" id="product-price" name="price" min="0" step="1" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="product-sale-price">מחיר מבצע (₪)</label>
-                                            <input type="number" id="product-sale-price" name="salePrice" min="0" step="1">
-                                        </div>
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label for="product-sku">מק"ט</label>
-                                            <input type="text" id="product-sku" name="sku">
-                                        </div>
-                                        <div class="form-group checkbox-group">
-                                            <input type="checkbox" id="product-featured" name="featured">
-                                            <label for="product-featured">מוצר מומלץ</label>
-                                        </div>
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label for="product-tags">תגיות</label>
-                                            <input type="text" id="product-tags" name="tags" placeholder="הפרד עם פסיקים: קיץ, ים, חוף">
-                                        </div>
-                                    </div>
+                            <div class="form-group">
+                                <label for="product-sale-price">מחיר מבצע</label>
+                                <div class="price-input-wrapper">
+                                    <input type="number" id="product-sale-price" name="salePrice" placeholder="0" min="0" step="0.01">
+                                    <span class="currency-symbol">₪</span>
                                 </div>
-                                
-                                <!-- Images Tab -->
-                                <div class="tab-pane" id="images-tab">
-                                    <div class="product-images-uploader">
-                                        <div class="upload-area" id="upload-area">
-                                            <i class="fas fa-cloud-upload-alt"></i>
-                                            <p>גרור תמונות לכאן או לחץ לבחירה</p>
-                                            <small>מקסימום 5 תמונות, גודל מקסימלי 5MB לתמונה, פורמט: JPG, PNG, WEBP</small>
-                                            <input type="file" id="product-images" name="images[]" multiple accept="image/*" style="display: none;">
-                                        </div>
-                                        
-                                        <div class="uploaded-images" id="uploaded-images">
-                                            <!-- Uploaded images will be displayed here -->
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Attributes Tab -->
-                                <div class="tab-pane" id="attributes-tab">
-                                    <div class="form-section">
-                                        <h4>צבעים</h4>
-                                        <div class="colors-container" id="colors-container">
-                                            <div class="color-item">
-                                                <div class="color-preview" style="background-color: black;"></div>
-                                                <input type="text" class="color-name" placeholder="שם הצבע" value="שחור">
-                                                <input type="text" class="color-code" placeholder="קוד הצבע" value="black">
-                                                <button type="button" class="btn-icon remove-color"><i class="fas fa-times"></i></button>
-                                            </div>
-                                            <div class="color-item">
-                                                <div class="color-preview" style="background-color: navy;"></div>
-                                                <input type="text" class="color-name" placeholder="שם הצבע" value="כחול נייבי">
-                                                <input type="text" class="color-code" placeholder="קוד הצבע" value="navy">
-                                                <button type="button" class="btn-icon remove-color"><i class="fas fa-times"></i></button>
-                                            </div>
-                                        </div>
-                                        <button type="button" class="btn btn-outline add-color-btn">
-                                            <i class="fas fa-plus"></i> הוסף צבע
-                                        </button>
-                                    </div>
-                                    
-                                    <div class="form-section">
-                                        <h4>מידות</h4>
-                                        <div class="sizes-container" id="sizes-container">
-                                            <div class="size-item">
-                                                <input type="text" class="size-value" placeholder="ערך המידה" value="S">
-                                                <button type="button" class="btn-icon remove-size"><i class="fas fa-times"></i></button>
-                                            </div>
-                                            <div class="size-item">
-                                                <input type="text" class="size-value" placeholder="ערך המידה" value="M">
-                                                <button type="button" class="btn-icon remove-size"><i class="fas fa-times"></i></button>
-                                            </div>
-                                            <div class="size-item">
-                                                <input type="text" class="size-value" placeholder="ערך המידה" value="L">
-                                                <button type="button" class="btn-icon remove-size"><i class="fas fa-times"></i></button>
-                                            </div>
-                                        </div>
-                                        <button type="button" class="btn btn-outline add-size-btn">
-                                            <i class="fas fa-plus"></i> הוסף מידה
-                                        </button>
-                                    </div>
-                                    
-                                    <div class="form-section">
-                                        <h4>פרטים נוספים</h4>
-                                        <div class="details-container" id="details-container">
-                                            <div class="detail-item">
-                                                <input type="text" class="detail-key" placeholder="מאפיין" value="חומר">
-                                                <input type="text" class="detail-value" placeholder="ערך" value="80% ניילון, 20% אלסטן">
-                                                <button type="button" class="btn-icon remove-detail"><i class="fas fa-times"></i></button>
-                                            </div>
-                                            <div class="detail-item">
-                                                <input type="text" class="detail-key" placeholder="מאפיין" value="הוראות כביסה">
-                                                <input type="text" class="detail-value" placeholder="ערך" value="שטיפה ידנית במים קרים">
-                                                <button type="button" class="btn-icon remove-detail"><i class="fas fa-times"></i></button>
-                                            </div>
-                                        </div>
-                                        <button type="button" class="btn btn-outline add-detail-btn">
-                                            <i class="fas fa-plus"></i> הוסף פרט
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <!-- Inventory Tab -->
-                                <div class="tab-pane" id="inventory-tab">
-                                    <div class="form-row">
-                                        <div class="form-group checkbox-group">
-                                            <input type="checkbox" id="product-in-stock" name="inStock" checked>
-                                            <label for="product-in-stock">במלאי</label>
-                                        </div>
-                                        <div class="form-group checkbox-group">
-                                            <input type="checkbox" id="product-active" name="active" checked>
-                                            <label for="product-active">פעיל (מוצג באתר)</label>
-                                        </div>
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label for="product-stock-quantity">כמות במלאי</label>
-                                            <input type="number" id="product-stock-quantity" name="stockQuantity" min="0" value="10">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="product-low-stock-threshold">סף כמות נמוכה</label>
-                                            <input type="number" id="product-low-stock-threshold" name="lowStockThreshold" min="0" value="3">
-                                            <small>התראה תישלח כאשר המלאי יגיע לכמות זו</small>
-                                        </div>
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label for="product-weight">משקל (גרם)</label>
-                                            <input type="number" id="product-weight" name="weight" min="0">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="product-dimensions">מידות (ס"מ)</label>
-                                            <input type="text" id="product-dimensions" name="dimensions" placeholder="אורך x רוחב x גובה">
-                                        </div>
-                                    </div>
-                                </div>
+                                <small>השאר ריק אם אין מבצע</small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="product-stock">מלאי</label>
+                                <select id="product-stock" name="inStock">
+                                    <option value="true">זמין</option>
+                                    <option value="false">לא זמין</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="product-status">סטטוס</label>
+                                <select id="product-status" name="active">
+                                    <option value="true">פעיל</option>
+                                    <option value="false">לא פעיל</option>
+                                </select>
                             </div>
                         </div>
                         
