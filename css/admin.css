@@ -1180,8 +1180,43 @@ button, input, select, textarea {
 
 .form-actions {
     display: flex;
-    gap: var(--admin-spacing-md);
-    margin-top: var(--admin-spacing-lg);
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.form-actions .btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    min-width: 100px;
+}
+
+.form-actions .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+}
+
+.form-actions .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.form-actions .btn-outline {
+    background: transparent;
+    border: 2px solid #e5e7eb;
+    color: #6b7280;
+}
+
+.form-actions .btn-outline:hover {
+    border-color: #667eea;
+    color: #667eea;
+    background-color: rgba(102, 126, 234, 0.05);
 }
 
 .form-section {
@@ -1446,23 +1481,33 @@ button, input, select, textarea {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.6);
     z-index: 1000;
     overflow-y: auto;
     padding: var(--admin-spacing-md);
+    backdrop-filter: blur(4px);
 }
 
 .modal.show {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .modal-dialog {
-    max-width: 800px;
-    margin: 30px auto;
+    max-width: 500px;
+    width: 90%;
     background-color: var(--admin-card-bg);
-    border-radius: var(--admin-border-radius-lg);
-    box-shadow: var(--admin-box-shadow-lg);
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     overflow: hidden;
+    transform: scale(0.9);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal.show .modal-dialog {
+    transform: scale(1);
 }
 
 .modal-dialog.modal-sm {
@@ -1470,33 +1515,206 @@ button, input, select, textarea {
 }
 
 .modal-header {
-    padding: var(--admin-spacing-md);
-    border-bottom: 1px solid var(--admin-border);
+    padding: 24px 24px 20px;
+    border-bottom: 1px solid var(--admin-border-light);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: var(--admin-text-white);
+    position: relative;
+    overflow: hidden;
+}
+
+.modal-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+    pointer-events: none;
 }
 
 .modal-header h3 {
     margin: 0;
+    color: var(--admin-text-white);
+    font-size: 1.4rem;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
 }
 
 .modal-close {
-    background: none;
+    background: rgba(255, 255, 255, 0.2);
     border: none;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     cursor: pointer;
-    color: var(--admin-text-light);
-    transition: var(--admin-transition);
+    color: var(--admin-text-white);
+    transition: all 0.2s ease;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    position: relative;
+    z-index: 1;
 }
 
 .modal-close:hover {
-    color: var(--admin-danger);
-    transform: rotate(90deg);
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
 }
 
 .modal-body {
-    padding: var(--admin-spacing-lg);
+    padding: 24px;
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+}
+
+/* Special styles for modal forms */
+.modal .admin-form .form-group {
+    margin-bottom: 20px;
+}
+
+.modal .admin-form .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.9rem;
+}
+
+.modal .admin-form .form-group input,
+.modal .admin-form .form-group select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    background-color: #ffffff;
+}
+
+.modal .admin-form .form-group input:focus,
+.modal .admin-form .form-group select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+.modal .admin-form .form-group small {
+    display: block;
+    margin-top: 6px;
+    color: #6b7280;
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+/* Image preview styles */
+#images-preview {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+#images-preview img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+    transition: all 0.2s ease;
+}
+
+#images-preview img:hover {
+    border-color: #667eea;
+    transform: scale(1.05);
+}
+
+/* Price input styling */
+.price-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.price-input-wrapper input {
+    padding-right: 40px;
+    width: 100%;
+}
+
+.currency-symbol {
+    position: absolute;
+    right: 12px;
+    color: #6b7280;
+    font-weight: 500;
+    pointer-events: none;
+    z-index: 1;
+    font-size: 0.9rem;
+}
+
+/* Price warning styling */
+.price-warning {
+    color: #f44336 !important;
+    font-size: 0.8rem !important;
+    margin-top: 4px !important;
+    display: block !important;
+    font-weight: 500;
+}
+
+/* Form row styling for modal */
+.modal .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 0;
+}
+
+.modal .form-group {
+    margin-bottom: 20px;
+}
+
+.modal .form-group:last-child {
+    margin-bottom: 0;
+}
+
+/* Sale price validation */
+.price-input-wrapper input[type="number"]::-webkit-inner-spin-button,
+.price-input-wrapper input[type="number"]::-webkit-outer-spin-button {
+    opacity: 1;
+}
+
+/* Stock and status styling */
+.modal .form-group select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    background-color: #ffffff;
+    cursor: pointer;
+}
+
+.modal .form-group select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+/* Responsive design for modal form */
+@media (max-width: 768px) {
+    .modal .form-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .modal .form-group {
+        margin-bottom: 16px;
+    }
 }
 
 /* Buttons */
@@ -1566,7 +1784,7 @@ button, input, select, textarea {
 .btn-outline {
     background-color: transparent;
     border: 1px solid var(--admin-border);
-    color: var(--admin-text);
+    color: rgb(0, 0, 0); 
 }
 
 .btn-outline:hover {
