@@ -37,7 +37,8 @@ try {
 const productsRef = db ? db.collection('products') : null;
 const categoriesRef = db ? db.collection('categories') : null;
 const ordersRef = db ? db.collection('orders') : null;
-const usersRef = db ? db.collection('users') : null;
+const adminsRef = db ? db.collection('admins') : null;
+const customersRef = db ? db.collection('customers') : null;
 const messagesRef = db ? db.collection('messages') : null;
 const newsletterRef = db ? db.collection('newsletter') : null;
 
@@ -74,37 +75,75 @@ function getCurrentUser() {
     });
 }
 
-// Register a new user
-function registerUser(email, password, userData) {
-    if (!auth || !usersRef) {
+// Register a new customer
+function registerCustomer(email, password, userData) {
+    if (!auth || !customersRef) {
         return Promise.reject(new Error('Firebase not initialized'));
     }
     return auth.createUserWithEmailAndPassword(email, password)
         .then(userCredential => {
-            // Add user data to Firestore
-            return usersRef.doc(userCredential.user.uid).set({
+            // Add customer data to Firestore
+            return customersRef.doc(userCredential.user.uid).set({
                 ...userData,
                 email: email,
+                role: 'customer',
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
         });
 }
 
-// Update user profile
-function updateUserProfile(userId, userData) {
-    if (!usersRef) {
-        return Promise.reject(new Error('Firestore not initialized'));
+// Register a new admin (for manual admin creation only)
+function registerAdmin(email, password, userData) {
+    if (!auth || !adminsRef) {
+        return Promise.reject(new Error('Firebase not initialized'));
     }
-    return usersRef.doc(userId).update(userData);
+    return auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+            // Add admin data to Firestore
+            return adminsRef.doc(userCredential.user.uid).set({
+                ...userData,
+                email: email,
+                role: 'admin',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        });
 }
 
-// Get user data
-function getUserData(userId) {
-    if (!usersRef) {
+// Update user profile (works for both admins and customers)
+function updateUserProfile(userId, userData) {
+    if (!adminsRef || !customersRef) {
         return Promise.reject(new Error('Firestore not initialized'));
     }
-    return usersRef.doc(userId).get()
-        .then(doc => doc.exists ? doc.data() : null);
+    
+    // First try to update in admins collection
+    return adminsRef.doc(userId).get()
+        .then(doc => {
+            if (doc.exists) {
+                return adminsRef.doc(userId).update(userData);
+            }
+            // If not admin, try customers
+            return customersRef.doc(userId).update(userData);
+        });
+}
+
+// Get user data (check both admins and customers)
+function getUserData(userId) {
+    if (!adminsRef || !customersRef) {
+        return Promise.reject(new Error('Firestore not initialized'));
+    }
+    
+    // First check in admins collection
+    return adminsRef.doc(userId).get()
+        .then(doc => {
+            if (doc.exists) {
+                return doc.data();
+            }
+            // If not found in admins, check customers
+            return customersRef.doc(userId).get()
+                .then(customerDoc => {
+                    return customerDoc.exists ? customerDoc.data() : null;
+                });
+        });
 }
 
 /**
@@ -184,93 +223,81 @@ function getAllProducts(filters = {}, limit = 12, startAfter = null) {
     if (!productsRef) {
         return Promise.reject(new Error('Firestore not initialized'));
     }
+    
+    // Simplified query - just get active products without any complex filters for now
     let query = productsRef.where('active', '==', true);
     
-    // Apply filters
-    if (filters.category) {
-        query = query.where('category', '==', filters.category);
-    }
-    
-    if (filters.collection) {
-        query = query.where('collections', 'array-contains', filters.collection);
-    }
-    
-    if (filters.minPrice !== undefined) {
-        query = query.where('price', '>=', filters.minPrice);
-    }
-    
-    if (filters.maxPrice !== undefined) {
-        query = query.where('price', '<=', filters.maxPrice);
-    }
-    
-    if (filters.inStock !== undefined) {
-        query = query.where('inStock', '==', filters.inStock);
-    }
-    
-    // Apply sorting
-    let canOrderByCreatedAt = true;
-    if (filters.sort) {
-        switch (filters.sort) {
-            case 'price-asc':
-                query = query.orderBy('price', 'asc');
-                break;
-            case 'price-desc':
-                query = query.orderBy('price', 'desc');
-                break;
-            case 'newest':
-                // Try to order by createdAt, fallback to title if missing
-                try {
-                    query = query.orderBy('createdAt', 'desc');
-                } catch (e) {
-                    canOrderByCreatedAt = false;
-                }
-                break;
-            case 'name-asc':
-                query = query.orderBy('title', 'asc');
-                break;
-            default:
-                try {
-                    query = query.orderBy('createdAt', 'desc');
-                } catch (e) {
-                    canOrderByCreatedAt = false;
-                }
-        }
-    } else {
-        try {
-            query = query.orderBy('createdAt', 'desc');
-        } catch (e) {
-            canOrderByCreatedAt = false;
-        }
-    }
-    // If cannot order by createdAt, fallback to title
-    if (!canOrderByCreatedAt) {
-        query = query.orderBy('title', 'asc');
-    }
-    
-    // Apply pagination
-    if (startAfter) {
-        query = query.startAfter(startAfter);
-    }
-    
-    query = query.limit(limit);
+    // Skip all other filters and sorting for now to avoid index issues
+    // Just get the basic products and we'll filter/sort in JavaScript
     
     return query.get()
         .then(snapshot => {
-            const products = [];
-            let lastDoc = null;
+            let products = [];
             
             snapshot.forEach(doc => {
                 products.push({
                     id: doc.id,
                     ...doc.data()
                 });
-                lastDoc = doc;
             });
             
+            // Apply filters in JavaScript
+            if (filters.category) {
+                products = products.filter(p => p.category === filters.category);
+            }
+            
+            if (filters.collection) {
+                products = products.filter(p => p.collections && p.collections.includes(filters.collection));
+            }
+            
+            if (filters.minPrice !== undefined) {
+                products = products.filter(p => p.price >= filters.minPrice);
+            }
+            
+            if (filters.maxPrice !== undefined) {
+                products = products.filter(p => p.price <= filters.maxPrice);
+            }
+            
+            if (filters.inStock !== undefined) {
+                products = products.filter(p => p.inStock === filters.inStock);
+            }
+            
+            // Apply sorting in JavaScript
+            if (filters.sort) {
+                switch (filters.sort) {
+                    case 'price-asc':
+                        products.sort((a, b) => a.price - b.price);
+                        break;
+                    case 'price-desc':
+                        products.sort((a, b) => b.price - a.price);
+                        break;
+                    case 'name-asc':
+                        products.sort((a, b) => a.title.localeCompare(b.title));
+                        break;
+                    case 'newest':
+                    default:
+                        // Sort by creation date if available, otherwise by title
+                        products.sort((a, b) => {
+                            if (a.createdAt && b.createdAt) {
+                                return b.createdAt.toDate() - a.createdAt.toDate();
+                            }
+                            return a.title.localeCompare(b.title);
+                        });
+                }
+            } else {
+                // Default sorting
+                products.sort((a, b) => a.title.localeCompare(b.title));
+            }
+            
+            // Apply pagination in JavaScript
+            const startIndex = 0; // For now, start from beginning
+            const endIndex = Math.min(startIndex + limit, products.length);
+            const paginatedProducts = products.slice(startIndex, endIndex);
+            
             return {
-                products,
-                lastDoc,
-                hasMore: products.length === limit
+                products: paginatedProducts,
+                lastDoc: null, // Pagination disabled for simplicity
+                hasMore: endIndex < products.length
             };
         });
 }

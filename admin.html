@@ -43,36 +43,11 @@
                 <div class="form-message" id="login-message"></div>
                 <button type="submit" class="btn btn-primary">התחברות</button>
                 <div class="form-footer">
-                    <a href="#" id="reset-password-link">שכחתי סיסמה</a> |
-                    <a href="#" id="show-signup-link">הרשמה</a>
+                    <a href="#" id="reset-password-link">שכחתי סיסמה</a>
                 </div>
             </form>
             
-            <!-- Signup Form (Hidden by default) -->
-            <form class="login-form" id="signup-form" style="display: none;">
-                <h2>הרשמה למערכת ניהול</h2>
-                <div class="form-group">
-                    <label for="signup-name">שם מלא</label>
-                    <input type="text" id="signup-name" required>
-                </div>
-                <div class="form-group">
-                    <label for="signup-email">אימייל</label>
-                    <input type="email" id="signup-email" required>
-                </div>
-                <div class="form-group">
-                    <label for="signup-password">סיסמה</label>
-                    <input type="password" id="signup-password" required>
-                </div>
-                <div class="form-group">
-                    <label for="signup-password-confirm">אימות סיסמה</label>
-                    <input type="password" id="signup-password-confirm" required>
-                </div>
-                <div class="form-message" id="signup-message"></div>
-                <button type="submit" class="btn btn-primary">הרשמה</button>
-                <div class="form-footer">
-                    <a href="#" id="back-to-login-from-signup">חזרה להתחברות</a>
-                </div>
-            </form>
+
             
             <!-- Password Reset Form (Hidden by default) -->
             <form class="login-form" id="reset-form" style="display: none;">
@@ -338,11 +313,17 @@
                 <section id="products-section" class="admin-section">
                     <div class="section-header">
                         <h2>ניהול מוצרים</h2>
-                        <div class="actions">
-                            <button class="btn btn-primary" id="add-product-btn">
-                                <i class="fas fa-plus"></i> הוסף מוצר חדש
-                            </button>
-                        </div>
+                                            <div class="actions">
+                        <button class="btn btn-primary" id="add-product-btn">
+                            <i class="fas fa-plus"></i> הוסף מוצר חדש
+                        </button>
+                        <button class="btn btn-outline" id="activate-all-products-btn" title="הפעל את כל המוצרים כדי שיופיעו בחנות">
+                            <i class="fas fa-toggle-on"></i> הפעל כל המוצרים
+                        </button>
+                        <button class="btn btn-outline" id="test-shop-products-btn" title="בדוק איך החנות רואה את המוצרים">
+                            <i class="fas fa-search"></i> בדוק מוצרים בחנות
+                        </button>
+                    </div>
                     </div>
                     
                     <div class="filters-bar">

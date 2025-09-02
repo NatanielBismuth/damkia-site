@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initCartSidebar();
     initQuickViewModal();
     initNewsletterForm();
+    initAuthStateListener();
 });
 
 /**
@@ -696,4 +697,361 @@ function formatCurrency(amount) {
 // Utility Event - Content Loaded
 function dispatchContentLoaded() {
     document.dispatchEvent(new Event('contentLoaded'));
+}
+
+/**
+ * Initialize Authentication State Listener
+ */
+function initAuthStateListener() {
+    if (typeof auth !== 'undefined' && auth) {
+        console.log('🔧 Initializing auth state listener...');
+        auth.onAuthStateChanged(function(user) {
+            console.log('🔥 Auth state changed:', user ? `User: ${user.email}` : 'No user');
+            updateUserIcon(user);
+        });
+    } else {
+        console.log('⚠️ Auth not available, retrying in 1 second...');
+        setTimeout(initAuthStateListener, 1000);
+    }
+}
+
+/**
+ * Update User Icon Based on Authentication State
+ */
+function updateUserIcon(user) {
+    const userIcon = document.querySelector('a[href="account.html"] i');
+    const userLink = document.querySelector('a[href="account.html"]');
+    
+    console.log('🔧 Updating user icon...', user ? 'User logged in' : 'No user');
+    
+    if (user && userIcon && userLink) {
+        console.log('👤 User found, checking role...');
+        
+        // First set a basic logged-in state immediately
+        userIcon.className = 'fas fa-user';
+        userLink.style.color = '#4caf50';
+        userLink.setAttribute('title', 'מחובר');
+        
+        // Then check if user is a customer for more detailed info
+        if (typeof getUserData === 'function') {
+            getUserData(user.uid)
+                .then(userData => {
+                    console.log('📄 User data:', userData);
+                    if (userData && userData.role === 'customer') {
+                        // User is confirmed as customer - update with name
+                        userIcon.className = 'fas fa-user';
+                        userLink.setAttribute('title', `שלום, ${userData.name || user.email}!`);
+                        userLink.style.color = '#4caf50';
+                        
+                        // Add a small indicator badge
+                        addUserBadge(userLink);
+                        
+                        // Add logout functionality
+                        addLogoutMenu(userLink, userData.name || user.email);
+                        
+                        // Show welcome message if user just logged in
+                        showWelcomeMessage(userData.name || user.email);
+                        
+                        console.log('✅ Customer confirmed and icon updated');
+                    } else if (userData && userData.role === 'admin') {
+                        // Reset if admin tries to access
+                        resetUserIcon(userIcon, userLink);
+                    }
+                })
+                .catch(error => {
+                    console.log('❌ Could not get user data:', error);
+                    // Keep the basic logged-in state even if we can't get detailed data
+                });
+        }
+    } else {
+        console.log('🔄 Resetting user icon - no user');
+        resetUserIcon(userIcon, userLink);
+    }
+}
+
+/**
+ * Reset User Icon to Default State
+ */
+function resetUserIcon(userIcon, userLink) {
+    if (userIcon && userLink) {
+        userIcon.className = 'far fa-user';
+        userLink.removeAttribute('title');
+        userLink.style.color = '';
+        removeUserBadge(userLink);
+        removeLogoutMenu(userLink);
+    }
+}
+
+/**
+ * Add a small badge to indicate logged in user
+ */
+function addUserBadge(userLink) {
+    // Remove existing badge first
+    removeUserBadge(userLink);
+    
+    // Create badge element
+    const badge = document.createElement('span');
+    badge.className = 'user-logged-badge';
+    badge.style.cssText = `
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        width: 8px;
+        height: 8px;
+        background: #4caf50;
+        border-radius: 50%;
+        border: 2px solid white;
+        pointer-events: none;
+    `;
+    
+    // Make sure parent has relative positioning
+    userLink.style.position = 'relative';
+    userLink.appendChild(badge);
+}
+
+/**
+ * Remove user badge
+ */
+function removeUserBadge(userLink) {
+    const existingBadge = userLink.querySelector('.user-logged-badge');
+    if (existingBadge) {
+        existingBadge.remove();
+    }
+}
+
+/**
+ * Add logout dropdown menu to user icon
+ */
+function addLogoutMenu(userLink, userName) {
+    // Remove existing menu first
+    removeLogoutMenu(userLink);
+    
+    // Prevent default link behavior when logged in
+    userLink.addEventListener('click', handleUserIconClick);
+    userLink.href = '#';
+    
+    // Store user name for the menu
+    userLink.dataset.userName = userName;
+}
+
+/**
+ * Remove logout menu functionality
+ */
+function removeLogoutMenu(userLink) {
+    if (userLink) {
+        userLink.removeEventListener('click', handleUserIconClick);
+        userLink.href = 'account.html';
+        delete userLink.dataset.userName;
+        
+        // Remove any existing dropdown
+        const existingDropdown = document.querySelector('.user-dropdown');
+        if (existingDropdown) {
+            existingDropdown.remove();
+        }
+    }
+}
+
+/**
+ * Handle user icon click when logged in
+ */
+function handleUserIconClick(e) {
+    e.preventDefault();
+    
+    const userLink = e.currentTarget;
+    const userName = userLink.dataset.userName;
+    
+    // Remove existing dropdown
+    const existingDropdown = document.querySelector('.user-dropdown');
+    if (existingDropdown) {
+        existingDropdown.remove();
+        return;
+    }
+    
+    // Create dropdown menu
+    const dropdown = document.createElement('div');
+    dropdown.className = 'user-dropdown';
+    dropdown.style.cssText = `
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        min-width: 200px;
+        z-index: 1000;
+        direction: rtl;
+        overflow: hidden;
+    `;
+    
+    dropdown.innerHTML = `
+        <div style="padding: 1rem; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">
+            <div style="font-weight: 600; color: #374151;">שלום, ${userName}!</div>
+            <div style="font-size: 0.8rem; color: #6b7280; margin-top: 0.25rem;">מחוברת לחנות</div>
+        </div>
+        <div class="dropdown-item logout-item" style="
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #dc2626;
+            transition: background-color 0.2s;
+        ">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>התנתקות</span>
+        </div>
+    `;
+    
+    // Add hover effect
+    const logoutItem = dropdown.querySelector('.logout-item');
+    logoutItem.addEventListener('mouseenter', () => {
+        logoutItem.style.backgroundColor = '#fee2e2';
+    });
+    logoutItem.addEventListener('mouseleave', () => {
+        logoutItem.style.backgroundColor = '';
+    });
+    
+    // Add logout functionality
+    logoutItem.addEventListener('click', () => {
+        if (typeof auth !== 'undefined' && auth) {
+            auth.signOut()
+                .then(() => {
+                    console.log('User signed out successfully');
+                    // Show logout message
+                    showLogoutMessage();
+                })
+                .catch(error => {
+                    console.error('Logout error:', error);
+                });
+        }
+        dropdown.remove();
+    });
+    
+    // Position dropdown relative to user icon
+    userLink.style.position = 'relative';
+    userLink.appendChild(dropdown);
+    
+    // Close dropdown when clicking outside
+    setTimeout(() => {
+        document.addEventListener('click', function closeDropdown(e) {
+            if (!dropdown.contains(e.target) && !userLink.contains(e.target)) {
+                dropdown.remove();
+                document.removeEventListener('click', closeDropdown);
+            }
+        });
+    }, 100);
+}
+
+/**
+ * Show logout message
+ */
+function showLogoutMessage() {
+    const logoutToast = document.createElement('div');
+    logoutToast.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        background: #6b7280;
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        font-weight: 500;
+        direction: rtl;
+        animation: slideInRight 0.5s ease-out;
+    `;
+    
+    logoutToast.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>התנתקת בהצלחה</span>
+        </div>
+    `;
+    
+    document.body.appendChild(logoutToast);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        logoutToast.style.animation = 'slideOutRight 0.5s ease-in';
+        setTimeout(() => {
+            if (logoutToast.parentNode) {
+                logoutToast.parentNode.removeChild(logoutToast);
+            }
+        }, 500);
+    }, 3000);
+}
+
+/**
+ * Show welcome message for newly logged in users
+ */
+function showWelcomeMessage(userName) {
+    // Check if we just came from account page (using URL parameters or session storage)
+    const urlParams = new URLSearchParams(window.location.search);
+    const fromAccount = urlParams.get('from') === 'account' || sessionStorage.getItem('justLoggedIn') === 'true';
+    
+    if (fromAccount) {
+        // Clear the flag
+        sessionStorage.removeItem('justLoggedIn');
+        
+        // Create and show welcome toast
+        const welcomeToast = document.createElement('div');
+        welcomeToast.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            font-weight: 500;
+            direction: rtl;
+            animation: slideInRight 0.5s ease-out;
+        `;
+        
+        welcomeToast.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-check-circle"></i>
+                <span>שלום ${userName}, התחברת בהצלחה! 🎉</span>
+            </div>
+        `;
+        
+        // Add CSS animation
+        if (!document.querySelector('#welcome-toast-style')) {
+            const style = document.createElement('style');
+            style.id = 'welcome-toast-style';
+            style.textContent = `
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOutRight {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        document.body.appendChild(welcomeToast);
+        
+        // Auto remove after 4 seconds
+        setTimeout(() => {
+            welcomeToast.style.animation = 'slideOutRight 0.5s ease-in';
+            setTimeout(() => {
+                if (welcomeToast.parentNode) {
+                    welcomeToast.parentNode.removeChild(welcomeToast);
+                }
+            }, 500);
+        }, 4000);
+        
+        // Remove URL parameter if exists
+        if (urlParams.get('from')) {
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+        }
+    }
 }

@@ -310,8 +310,8 @@
 /* Shop Grid View (Default) */
 .products-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
     margin-bottom: 50px;
 }
 
@@ -562,7 +562,7 @@
 }
 
 .product-title {
-    font-size: 32px;
+    font-size: 21px;
     font-weight: 700;
     margin-bottom: 15px;
 }
@@ -574,17 +574,18 @@
 }
 
 .price-current {
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--accent);
+    font-size: 16x;
+    font-weight: 800;
+    color: black;
 }
 
 .price-original {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 400;
     color: var(--text-light);
     text-decoration: line-through;
-    margin-right: 15px;
+    margin-right: 2px;
+    opacity: 0.7;
 }
 
 .discount-badge {

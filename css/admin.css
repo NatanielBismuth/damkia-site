@@ -1784,7 +1784,7 @@ button, input, select, textarea {
 .btn-outline {
     background-color: transparent;
     border: 1px solid var(--admin-border);
-    color: var(--admin-text);
+    color: rgb(0, 0, 0); 
 }
 
 .btn-outline:hover {

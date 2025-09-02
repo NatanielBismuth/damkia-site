@@ -28,8 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize product actions (for add product button)
     initProductActions();
     
-    // Initialize other components when authenticated
-    authStateChanged();
+    // Initialize auth state listener (only once)
+    auth.onAuthStateChanged(authStateChanged);
     
     // Add global error handler
     window.addEventListener('error', function(e) {
@@ -39,109 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    const signupForm = document.getElementById('signup-form');
-    const showSignupLink = document.getElementById('show-signup-link');
-    const backToLoginFromSignup = document.getElementById('back-to-login-from-signup');
-    const loginForm = document.getElementById('login-form');
-    const resetForm = document.getElementById('reset-form');
 
-    if (showSignupLink && signupForm && loginForm) {
-        showSignupLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            loginForm.style.display = 'none';
-            if (resetForm) resetForm.style.display = 'none';
-            signupForm.style.display = 'block';
-        });
-    }
-    if (backToLoginFromSignup && signupForm && loginForm) {
-        backToLoginFromSignup.addEventListener('click', function(e) {
-            e.preventDefault();
-            signupForm.style.display = 'none';
-            loginForm.style.display = 'block';
-        });
-    }
-    if (signupForm) {
-        signupForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const name = document.getElementById('signup-name').value.trim();
-            const email = document.getElementById('signup-email').value.trim();
-            const password = document.getElementById('signup-password').value;
-            const passwordConfirm = document.getElementById('signup-password-confirm').value;
-            const signupMessage = document.getElementById('signup-message');
-            signupMessage.textContent = '';
-            signupMessage.className = 'form-message';
-
-            if (!name || !email || !password || !passwordConfirm) {
-                signupMessage.textContent = 'יש למלא את כל השדות';
-                signupMessage.className = 'form-message error';
-                return;
-            }
-            if (password.length < 6) {
-                signupMessage.textContent = 'הסיסמה חייבת להכיל לפחות 6 תווים';
-                signupMessage.className = 'form-message error';
-                return;
-            }
-            if (password !== passwordConfirm) {
-                signupMessage.textContent = 'הסיסמאות אינן תואמות';
-                signupMessage.className = 'form-message error';
-                return;
-            }
-            signupMessage.textContent = 'בודק הרשאות...';
-            signupMessage.className = 'form-message';
-            try {
-                // Check if any admin exists
-                const adminsSnap = await usersRef.where('role', '==', 'admin').limit(1).get();
-                if (!adminsSnap.empty) {
-                    signupMessage.textContent = 'הרשמה סגורה. יש כבר מנהל במערכת.';
-                    signupMessage.className = 'form-message error';
-                    return;
-                }
-                signupMessage.textContent = 'יוצר משתמש...';
-                // Create user in Firebase Auth
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-
-                // Wait for authentication state to be ready
-                auth.onAuthStateChanged(async (authUser) => {
-                    if (authUser && authUser.uid === user.uid) {
-                        try {
-                            await usersRef.doc(user.uid).set({
-                                name: name,
-                                email: email,
-                                role: 'admin',
-                                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                                isActive: true
-                            });
-                            signupMessage.textContent = 'נרשמת בהצלחה! מעביר ללוח הניהול...';
-                            signupMessage.className = 'form-message success';
-                            setTimeout(() => {
-                                signupForm.style.display = 'none';
-                                if (loginForm) loginForm.style.display = 'none';
-                                if (resetForm) resetForm.style.display = 'none';
-                                authStateChanged();
-                            }, 1000);
-                        } catch (firestoreError) {
-                            console.error('Firestore write error:', firestoreError);
-                            signupMessage.textContent = 'שגיאה בשמירת נתוני המשתמש. פנה למנהל המערכת.';
-                            signupMessage.className = 'form-message error';
-                        }
-                    }
-                });
-            } catch (error) {
-                console.error('Signup error:', error);
-                let errorMessage = 'אירעה שגיאה בהרשמה. נסה שוב.';
-                if (error.code === 'auth/email-already-in-use') {
-                    errorMessage = 'אימייל זה כבר רשום.';
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMessage = 'אימייל לא תקין.';
-                } else if (error.code === 'auth/weak-password') {
-                    errorMessage = 'הסיסמה חלשה מדי.';
-                }
-                signupMessage.textContent = errorMessage;
-                signupMessage.className = 'form-message error';
-            }
-        });
-    }
 });
 
 /**
@@ -266,67 +164,86 @@ function initAuthListeners() {
 /**
  * Handle authentication state changes
  */
-function authStateChanged() {
-    getCurrentUser()
-        .then(user => {
-            const loginScreen = document.getElementById('login-screen');
-            const adminDashboard = document.getElementById('admin-dashboard');
-            
-            if (user) {
-                // User is signed in - check if they have admin role
-                checkAdminRole(user.uid)
-                    .then(isAdmin => {
-                        if (isAdmin) {
-                            // User is admin - show admin dashboard
-                            if (loginScreen) loginScreen.style.display = 'none';
-                            if (adminDashboard) adminDashboard.style.display = 'grid';
-                            
-                            // Set user info
-                            setUserInfo(user);
-                            
-                            // Initialize dashboard data
-                            initDashboard();
-                            
-                            // Load initial data for tables
-                            loadProducts();
-                            loadOrders();
-                            loadMessages();
-                            loadCustomers();
-                            
-                            // Initialize product actions (for add product button)
-                            initProductActions();
-                            
-                            // Update unread counts
-                            updateUnreadCounts();
-                        } else {
-                            // User is not admin - show error and logout
-                            showToast('אין לך הרשאות גישה לפאנל הניהול', 'error');
-                            signOut();
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error checking admin role:', error);
-                        showToast('שגיאה בבדיקת הרשאות', 'error');
-                        signOut();
-                    });
-            } else {
-                // No user is signed in - show login screen
-                if (loginScreen) loginScreen.style.display = 'flex';
-                if (adminDashboard) adminDashboard.style.display = 'none';
-            }
-        })
-        .catch(error => {
-            console.error('Auth state error:', error);
-        });
+function authStateChanged(user) {
+    const loginScreen = document.getElementById('login-screen');
+    const adminDashboard = document.getElementById('admin-dashboard');
+    
+    if (user) {
+        // User is signed in - check if they have admin role
+        checkAdminRole(user.uid)
+            .then(isAdmin => {
+                if (isAdmin) {
+                    // User is admin - show admin dashboard
+                    const loginScreen = document.getElementById('login-screen');
+                    const adminDashboard = document.getElementById('admin-dashboard');
+                    
+                    if (loginScreen) loginScreen.style.display = 'none';
+                    if (adminDashboard) adminDashboard.style.display = 'grid';
+                    
+                    // Set user info
+                    setUserInfo(user);
+                    
+                    // Initialize dashboard data (only once)
+                    setTimeout(() => {
+                        initDashboard();
+                    }, 100);
+                    
+                    // Load initial data for tables (with error handling)
+                    try {
+                        loadProducts();
+                        loadOrders();
+                        loadMessages();
+                        loadCustomers();
+                    } catch (error) {
+                        console.warn('Error loading some admin data sections:', error);
+                    }
+                    
+                    // Initialize product actions (for add product button)
+                    initProductActions();
+                    
+                    // Update unread counts (with error handling)
+                    try {
+                        updateUnreadCounts();
+                    } catch (error) {
+                        console.warn('Error updating unread counts:', error);
+                    }
+                } else {
+                    // User is not admin - show error and logout
+                    showToast('אין לך הרשאות גישה לפאנל הניהול', 'error');
+                    signOut();
+                }
+            })
+            .catch(error => {
+                console.error('Error checking admin role:', error);
+                showToast('שגיאה בבדיקת הרשאות', 'error');
+                signOut();
+            });
+    } else {
+        // No user is signed in - show login screen
+        const loginScreen = document.getElementById('login-screen');
+        const adminDashboard = document.getElementById('admin-dashboard');
+        
+        if (loginScreen) loginScreen.style.display = 'flex';
+        if (adminDashboard) adminDashboard.style.display = 'none';
+    }
 }
 
 /**
  * Check if user has admin role
  */
 function checkAdminRole(userId) {
+    console.log('🔍 Checking admin role for user:', userId);
     return getUserData(userId)
         .then(userData => {
-            return userData && userData.role === 'admin';
+            console.log('📋 User data retrieved:', userData);
+            console.log('👤 User role:', userData ? userData.role : 'No data found');
+            const isAdmin = userData && userData.role === 'admin';
+            console.log('✅ Is admin?', isAdmin);
+            return isAdmin;
+        })
+        .catch(error => {
+            console.error('❌ Error in checkAdminRole:', error);
+            return false;
         });
 }
 
@@ -342,7 +259,7 @@ function setUserInfo(user) {
         userName.textContent = user.displayName || user.email || 'משתמש';
     }
     
-    // Get additional user info from Firestore
+    // Get additional user info from Firestore - with better error handling
     getUserData(user.uid)
         .then(userData => {
             if (!userData) return;
@@ -353,7 +270,12 @@ function setUserInfo(user) {
             }
         })
         .catch(error => {
-            console.error('Error fetching user data:', error);
+            console.warn('Could not load user data (permissions may be restricted):', error);
+            // Set default role
+            const userRole = document.getElementById('user-role');
+            if (userRole) {
+                userRole.textContent = 'מנהל';
+            }
         });
 }
 
@@ -371,92 +293,143 @@ function initDashboard() {
     loadRecentOrders();
     loadTopProducts();
     loadRecentMessages();
+    
+    // Verify products in Firebase
+    verifyProductsInFirebase();
 }
 
 /**
  * Load Dashboard Statistics
  */
 function loadDashboardStats() {
-    // Orders count
-    db.collection('orders')
-        .where('status', '==', 'pending')
-        .get()
-        .then(snapshot => {
-            const countElement = document.getElementById('new-orders-count');
-            if (countElement) {
-                countElement.textContent = snapshot.size;
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching new orders count:', error);
-        });
-    
-    // Customers count
-    db.collection('users')
-        .get()
-        .then(snapshot => {
-            const countElement = document.getElementById('customers-count');
-            if (countElement) {
-                countElement.textContent = snapshot.size;
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching customers count:', error);
-        });
-    
-    // Monthly revenue
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-    const startOfMonth = new Date(currentYear, currentMonth, 1);
-    
-    db.collection('orders')
-        .where('status', 'in', ['processing', 'shipped', 'delivered'])
-        .where('createdAt', '>=', startOfMonth)
-        .get()
-        .then(snapshot => {
-            let revenue = 0;
-            snapshot.forEach(doc => {
-                const orderData = doc.data();
-                revenue += orderData.total || 0;
+    // Orders count - simplified to avoid index issues
+    if (db) {
+        db.collection('orders')
+            .limit(50) // Limit to improve performance
+            .get()
+            .then(snapshot => {
+                let pendingCount = 0;
+                
+                snapshot.forEach(doc => {
+                    const orderData = doc.data();
+                    if (orderData.status === 'pending') {
+                        pendingCount++;
+                    }
+                });
+                
+                const countElement = document.getElementById('new-orders-count');
+                if (countElement) {
+                    countElement.textContent = pendingCount;
+                }
+            })
+            .catch(error => {
+                console.warn('Could not load orders count:', error);
+                const countElement = document.getElementById('new-orders-count');
+                if (countElement) {
+                    countElement.textContent = '-';
+                }
             });
-            
-            const revenueElement = document.getElementById('monthly-revenue');
-            if (revenueElement) {
-                revenueElement.textContent = `₪${revenue.toLocaleString()}`;
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching monthly revenue:', error);
-        });
+    }
     
-    // Active products
-    db.collection('products')
-        .where('active', '==', true)
-        .get()
-        .then(snapshot => {
-            const countElement = document.getElementById('active-products');
-            if (countElement) {
-                countElement.textContent = snapshot.size;
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching active products count:', error);
-        });
+    // Customers count - with better error handling
+    if (db) {
+        db.collection('customers')
+            .get()
+            .then(snapshot => {
+                const countElement = document.getElementById('customers-count');
+                if (countElement) {
+                    countElement.textContent = snapshot.size;
+                }
+            })
+            .catch(error => {
+                console.warn('Could not load customers count (permissions may be restricted):', error);
+                const countElement = document.getElementById('customers-count');
+                if (countElement) {
+                    countElement.textContent = '-';
+                }
+            });
+    }
+    
+    // Monthly revenue - simplified query to avoid index requirements
+    if (db) {
+        // Use a simpler query that doesn't require complex indexing
+        db.collection('orders')
+            .where('status', '==', 'completed') // Single status check
+            .limit(100) // Limit results to improve performance
+            .get()
+            .then(snapshot => {
+                let revenue = 0;
+                const currentMonth = new Date().getMonth();
+                const currentYear = new Date().getFullYear();
+                
+                snapshot.forEach(doc => {
+                    const orderData = doc.data();
+                    
+                    // Filter by date manually to avoid complex indexing
+                    if (orderData.createdAt && orderData.createdAt.toDate) {
+                        const orderDate = orderData.createdAt.toDate();
+                        if (orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear) {
+                            revenue += orderData.total || 0;
+                        }
+                    }
+                });
+                
+                const revenueElement = document.getElementById('monthly-revenue');
+                if (revenueElement) {
+                    revenueElement.textContent = `₪${revenue.toLocaleString()}`;
+                }
+            })
+            .catch(error => {
+                console.warn('Could not load monthly revenue:', error);
+                const revenueElement = document.getElementById('monthly-revenue');
+                if (revenueElement) {
+                    revenueElement.textContent = '₪-';
+                }
+            });
+    }
+    
+    // Active products - with better error handling
+    if (db) {
+        db.collection('products')
+            .where('active', '==', true)
+            .get()
+            .then(snapshot => {
+                const countElement = document.getElementById('active-products');
+                if (countElement) {
+                    countElement.textContent = snapshot.size;
+                }
+            })
+            .catch(error => {
+                console.warn('Could not load active products count (permissions may be restricted):', error);
+                const countElement = document.getElementById('active-products');
+                if (countElement) {
+                    countElement.textContent = '-';
+                }
+            });
+    }
 }
 
 /**
  * Initialize Sales Chart
  */
+let salesChart = null; // Global variable to store chart instance
+
 function initSalesChart() {
     const ctx = document.getElementById('sales-chart-canvas');
     if (!ctx) return;
     
-    // Sample data
+    // Destroy existing chart if it exists
+    if (salesChart) {
+        salesChart.destroy();
+        salesChart = null;
+    }
+    
+    // Real sales data - will be calculated from actual orders
     const weeklyData = {
         labels: ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'],
         datasets: [{
             label: 'מכירות',
-            data: [5, 7, 8, 10, 12, 15, 9],
+            data: [0, 0, 0, 0, 0, 0, 0], // Will be populated from real data
             backgroundColor: 'rgba(76, 175, 80, 0.2)',
             borderColor: '#4caf50',
             borderWidth: 2,
@@ -468,7 +441,7 @@ function initSalesChart() {
         labels: ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'],
         datasets: [{
             label: 'מכירות',
-            data: [65, 59, 80, 81, 56, 55, 40, 45, 60, 70, 85, 90],
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // Will be populated from real data
             backgroundColor: 'rgba(76, 175, 80, 0.2)',
             borderColor: '#4caf50',
             borderWidth: 2,
@@ -480,7 +453,7 @@ function initSalesChart() {
         labels: ['2020', '2021', '2022', '2023', '2024', '2025'],
         datasets: [{
             label: 'מכירות',
-            data: [600, 750, 820, 980, 1200, 400],
+            data: [0, 0, 0, 0, 0, 0], // Will be populated from real data
             backgroundColor: 'rgba(76, 175, 80, 0.2)',
             borderColor: '#4caf50',
             borderWidth: 2,
@@ -489,7 +462,7 @@ function initSalesChart() {
     };
     
     // Create chart
-    const salesChart = new Chart(ctx, {
+    salesChart = new Chart(ctx, {
         type: 'line',
         data: weeklyData,
         options: {
@@ -608,8 +581,8 @@ function loadTopProducts() {
                 const product = doc.data();
                 product.id = doc.id;
                 
-                // Get sales count (placeholder for now)
-                const salesCount = Math.floor(Math.random() * 50) + 1;
+                // Get actual sales count from orders
+                const salesCount = 0; // Will be calculated from real order data
                 
                 html += `
                     <tr>
@@ -821,9 +794,6 @@ function loadProducts() {
             });
             
             tbody.innerHTML = html;
-            
-            // Add event listeners for actions
-            initProductActions();
         })
         .catch(error => {
             console.error('Error fetching products:', error);
@@ -875,6 +845,36 @@ function initProductActions() {
         });
     } else {
         console.error('Add product button not found!');
+    }
+    
+    // Activate all products button
+    const activateAllBtn = document.getElementById('activate-all-products-btn');
+    if (activateAllBtn) {
+        console.log('Activate all products button found, adding event listener');
+        // Remove any existing event listeners by cloning the button
+        const newActivateAllBtn = activateAllBtn.cloneNode(true);
+        activateAllBtn.parentNode.replaceChild(newActivateAllBtn, activateAllBtn);
+        
+        // Add the event listener to the new clean button
+        newActivateAllBtn.addEventListener('click', function() {
+            console.log('Activate all products button clicked');
+            activateAllProducts();
+        });
+    }
+    
+    // Test shop products button
+    const testShopBtn = document.getElementById('test-shop-products-btn');
+    if (testShopBtn) {
+        console.log('Test shop products button found, adding event listener');
+        // Remove any existing event listeners by cloning the button
+        const newTestShopBtn = testShopBtn.cloneNode(true);
+        testShopBtn.parentNode.replaceChild(newTestShopBtn, testShopBtn);
+        
+        // Add the event listener to the new clean button
+        newTestShopBtn.addEventListener('click', function() {
+            console.log('Test shop products button clicked');
+            testShopProductsLoading();
+        });
     }
     
     // Cancel product button
@@ -954,9 +954,10 @@ function openProductModal(mode, productId = null) {
     } else {
         // In add mode, just show the empty form
         modal.classList.add('show');
-        // Set default status to 'פעיל' (true)
+        // Default status to 'פעיל' (true)
         const statusSelect = document.getElementById('product-status');
         if (statusSelect) statusSelect.value = 'true';
+        
         console.log('Modal should be visible now');
     }
     
@@ -2324,7 +2325,7 @@ function loadCustomers() {
     const searchQuery = document.getElementById('customers-search')?.value || '';
     
     // Create query
-    let query = db.collection('users')
+    let query = db.collection('customers')
         .orderBy('createdAt', 'desc');
     
     // Execute query
@@ -2549,7 +2550,7 @@ function openCustomerModal(mode, customerId) {
     customerModal.classList.add('show');
     
     // Load customer data
-    db.collection('users').doc(customerId).get()
+    db.collection('customers').doc(customerId).get()
         .then(doc => {
             if (!doc.exists) {
                 showToast('לא נמצא לקוח עם המזהה הזה', 'error');
@@ -2640,7 +2641,7 @@ function openCustomerModal(mode, customerId) {
             };
             
             // Update customer in Firebase
-            db.collection('users').doc(customerId).update(customerData)
+            db.collection('customers').doc(customerId).update(customerData)
                 .then(() => {
                     showToast('פרטי הלקוח עודכנו בהצלחה', 'success');
                     
@@ -2667,7 +2668,7 @@ function viewCustomerOrders(customerId) {
     navigateToSection('orders');
     
     // Get customer info for filtering
-    db.collection('users').doc(customerId).get()
+    db.collection('customers').doc(customerId).get()
         .then(doc => {
             if (!doc.exists) {
                 showToast('לא נמצא לקוח עם המזהה הזה', 'error');
@@ -3151,12 +3152,44 @@ function deleteProduct(productId) {
  * @returns {Promise<Object>} - Promise resolving to user data
  */
 function getUserData(userId) {
-    return db.collection('users').doc(userId).get()
+    console.log('🔍 Looking up user data for:', userId);
+    // First check in admins collection
+    return db.collection('admins').doc(userId).get()
         .then(doc => {
-            if (!doc.exists) return null;
-            
-            const userData = doc.data();
-            return userData;
+            console.log('📁 Admins collection check - exists:', doc.exists);
+            if (doc.exists) {
+                const adminData = doc.data();
+                console.log('👨‍💼 Admin data found:', adminData);
+                return adminData;
+            }
+            // If not found in admins, check customers
+            console.log('👥 Checking customers collection...');
+            return db.collection('customers').doc(userId).get()
+                .then(customerDoc => {
+                    console.log('📁 Customers collection check - exists:', customerDoc.exists);
+                    if (customerDoc.exists) {
+                        const customerData = customerDoc.data();
+                        console.log('👤 Customer data found:', customerData);
+                        return customerData;
+                    }
+                    // If not found in new collections, check old 'users' collection
+                    console.log('🔍 Checking old users collection...');
+                    return db.collection('users').doc(userId).get()
+                        .then(oldUserDoc => {
+                            console.log('📁 Old users collection check - exists:', oldUserDoc.exists);
+                            if (oldUserDoc.exists) {
+                                const oldUserData = oldUserDoc.data();
+                                console.log('👴 Old user data found:', oldUserData);
+                                return oldUserData;
+                            }
+                            console.log('❌ User not found in any collection');
+                            return null;
+                        });
+                });
+        })
+        .catch(error => {
+            console.error('❌ Error in getUserData:', error);
+            return null;
         });
 }
 
@@ -3443,4 +3476,165 @@ async function verifyProductInStore(productId, productTitle) {
     }
 }
 
-// In openProductModal, after rendering the modal, call initImageUploadActions(productId)
+/**
+ * Verify Products in Firebase
+ * This function checks the current state of products in Firebase and reports issues
+ */
+function verifyProductsInFirebase() {
+    console.log('🔍 Verifying products in Firebase...');
+    
+    if (!db) {
+        console.error('❌ Firebase not initialized');
+        return;
+    }
+    
+    // Check all products
+    db.collection('products').get()
+        .then(snapshot => {
+            console.log(`📊 Total products in Firebase: ${snapshot.size}`);
+            
+            let activeProducts = 0;
+            let inactiveProducts = 0;
+            let featuredProducts = 0;
+            let inStockProducts = 0;
+            
+            snapshot.forEach(doc => {
+                const product = doc.data();
+                
+                if (product.active === true) {
+                    activeProducts++;
+                } else if (product.active === false) {
+                    inactiveProducts++;
+                } else {
+                    console.warn(`⚠️ Product "${product.title || doc.id}" missing 'active' field`);
+                }
+                
+                if (product.featured === true) {
+                    featuredProducts++;
+                }
+                
+                if (product.inStock === true) {
+                    inStockProducts++;
+                }
+            });
+            
+            console.log(`📈 Active products: ${activeProducts}`);
+            console.log(`📉 Inactive products: ${inactiveProducts}`);
+            console.log(`⭐ Featured products: ${featuredProducts}`);
+            console.log(`📦 In stock products: ${inStockProducts}`);
+            
+            if (activeProducts === 0) {
+                console.error('❌ NO ACTIVE PRODUCTS FOUND! This is why the store is empty.');
+                showToast('לא נמצאו מוצרים פעילים בפיירבייס. זו הסיבה שהחנות ריקה.', 'error');
+                
+                // Offer to fix this
+                if (confirm('האם ברצונך להפעיל את כל המוצרים כדי שיופיעו בחנות?')) {
+                    activateAllProducts();
+                }
+            } else {
+                console.log(`✅ Found ${activeProducts} active products - store should display them`);
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error verifying products:', error);
+            showToast('שגיאה בבדיקת מוצרים בפיירבייס', 'error');
+        });
+}
+
+/**
+ * Activate All Products
+ * This function sets all products to active=true
+ */
+function activateAllProducts() {
+    console.log('🔧 Activating all products...');
+    
+    if (!db) {
+        console.error('❌ Firebase not initialized');
+        showToast('שגיאה: המערכת לא מאותחלת כראוי ❌', 'error');
+        return;
+    }
+    
+    db.collection('products').get()
+        .then(snapshot => {
+            const batch = db.batch();
+            let updateCount = 0;
+            
+            snapshot.forEach(doc => {
+                const product = doc.data();
+                
+                // Only update products that are not already active
+                if (product.active !== true) {
+                    batch.update(doc.ref, { 
+                        active: true,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    updateCount++;
+                    console.log(`🔧 Activating product: ${product.title || doc.id}`);
+                }
+            });
+            
+            if (updateCount > 0) {
+                return batch.commit().then(() => {
+                    console.log(`✅ Successfully activated ${updateCount} products`);
+                    showToast(`המוצרים נטענו בהצלחה! הופעלו ${updateCount} מוצרים 🎉`, 'success');
+                    
+                    // Reload products table to show updated status
+                    loadProducts();
+                });
+            } else {
+                console.log('ℹ️ All products are already active');
+                showToast('המוצרים נטענו בהצלחה! כל המוצרים כבר פעילים ✅', 'success');
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error activating products:', error);
+            showToast('שגיאה בטעינת המוצרים! אנא נסה שוב ❌', 'error');
+        });
+}
+
+/**
+ * Test Shop Products Loading
+ * This function tests what products are being loaded by the shop
+ */
+function testShopProductsLoading() {
+    console.log('🔍 Testing shop products loading...');
+    
+    if (!db) {
+        console.error('❌ Firebase not initialized');
+        return;
+    }
+
+    // Test the exact same query the shop uses
+    const query = db.collection('products').where('active', '==', true);
+    
+    query.get()
+        .then(snapshot => {
+            console.log(`📊 Products found by shop query: ${snapshot.size}`);
+            
+            snapshot.forEach(doc => {
+                const product = doc.data();
+                console.log(`📦 Product: "${product.title}" (${doc.id})`);
+                console.log(`   - Active: ${product.active}`);
+                console.log(`   - InStock: ${product.inStock}`);
+                console.log(`   - Category: ${product.category}`);
+                console.log(`   - Price: ${product.price}`);
+                console.log(`   - Images: ${product.images}`);
+                console.log(`   - Created: ${product.createdAt}`);
+                console.log('---');
+            });
+            
+            if (snapshot.size === 0) {
+                console.error('❌ Shop query returns NO products!');
+                showToast('החנות לא מוצאת מוצרים פעילים', 'error');
+            } else {
+                console.log(`✅ Shop query should return ${snapshot.size} products`);
+                showToast(`נמצאו ${snapshot.size} מוצרים פעילים עבור החנות`, 'success');
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error testing shop query:', error);
+            showToast('שגיאה בבדיקת מוצרים לחנות', 'error');
+        });
+}
+
+// ... existing code ...

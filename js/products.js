@@ -215,6 +215,10 @@ function renderProductListing(products, resetListing = false) {
                 <i class="fas fa-search"></i>
                 <h3>לא נמצאו מוצרים</h3>
                 <p>נסי לשנות את הסינון או לחפש מחדש.</p>
+                <p style="color: #999; font-size: 14px; margin-top: 10px;">
+                    אם זה הפעם הראשונה שאת נכנסת לחנות, ייתכן שהמוצרים עדיין לא הופעלו. 
+                    נכני לפאנל האדמין ולחצי על "הפעל כל המוצרים".
+                </p>
                 <button id="reset-filters" class="cta-button">נקה סינונים</button>
             </div>
         `;
@@ -310,8 +314,10 @@ function renderProducts(products, container, append = false) {
                     </button>
                 </div>
                 <div class="product-info">
-                    <h3 class="product-title">${product.title}</h3>
-                    ${priceHTML}
+                    <div class="product-header">
+                        <h3 class="product-title">${product.title}</h3>
+                        ${priceHTML}
+                    </div>
                     <div class="product-actions">
                         ${colorsHTML}
                         <button class="add-to-cart" data-product-id="${product.id}" aria-label="הוסף לסל">
